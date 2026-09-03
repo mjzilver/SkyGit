@@ -4,50 +4,62 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.Daemon
 
-def openRepository(repoPath: File): Repository = {
-    val gitDir = File(repoPath, ".git")
+def openRepository(repoPath: File): Option[Repository] = {
+    try {
+        val gitDir = File(repoPath, ".git")
 
-    new FileRepositoryBuilder()
-        .setGitDir(gitDir)
-        .setWorkTree(repoPath)
-        .setMustExist(true)
-        .build()
+        Some(
+            new FileRepositoryBuilder()
+                .setGitDir(gitDir)
+                .setWorkTree(repoPath)
+                .setMustExist(true)
+                .build()
+        )
+    } catch {
+        case _: Exception => None
+    }
 }
 
 def printStats(repoPath: File): Unit = {
-    val repo = openRepository(repoPath)
+    openRepository(repoPath) match
+        case None =>
+            println(s"Could not open repository: ${repoPath.getAbsolutePath}")
 
-    try
-        val gitStats = new GitStats(repo)
-        val printer = new StatsPrinter()
+        case Some(repo) =>
+            try
+                val gitStats = new GitStats(repo)
+                val printer = new StatsPrinter()
 
-        val commits = gitStats.loadCommits()
-        val stats = gitStats.calculateStats(
-            repoName = repoPath.getName,
-            commits = commits
-        )
+                val commits = gitStats.loadCommits()
+                val stats = gitStats.calculateStats(
+                    repoName = repoPath.getName,
+                    commits = commits
+                )
 
-        printer.print(stats)
+                printer.print(stats)
 
-    finally repo.close()
+            finally repo.close()
 }
 
 def mirror(repoPath: File, destination: String): Unit = {
-    val repo = openRepository(repoPath)
+    openRepository(repoPath) match
+        case None =>
+            println(s"Could not open repository: ${repoPath.getAbsolutePath}")
 
-    try
-        new GitMirror(repo, repoPath.getName).mirrorTo(destination)
-    finally repo.close()
+        case Some(repo) =>
+            try
+                new GitMirror(repo, repoPath.getName).mirrorTo(destination)
+            finally repo.close()
 }
 
-def startServer(baseDir: File, port: Int): Unit = {
-    val server = new GitServer(baseDir, port)
-
+def startServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT): Unit = {
     try {
+        val server = new GitServer(baseDir, port)
+
         server.start()
         Thread.currentThread().join()
-    } finally {
-        server.close()
+    } catch {
+        case e: Exception => println(s"Failed to start server: ${e.getMessage}")
     }
 }
 
@@ -57,10 +69,14 @@ def main(args: Array[String]): Unit = {
             mirror(File(repoArg).getCanonicalFile, destination)
 
         case "server" :: baseDirArg :: Nil =>
-            startServer(File(baseDirArg).getCanonicalFile, Daemon.DEFAULT_PORT)
+            startServer(File(baseDirArg).getCanonicalFile)
 
         case "server" :: baseDirArg :: portArg :: Nil =>
-            startServer(File(baseDirArg).getCanonicalFile, portArg.toInt)
+            portArg.toIntOption match
+                case Some(port) =>
+                    startServer(File(baseDirArg).getCanonicalFile, port)
+                case None =>
+                    println(s"Invalid port: $portArg")
 
         case repoArg :: Nil =>
             printStats(File(repoArg).getCanonicalFile)

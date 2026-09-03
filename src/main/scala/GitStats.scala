@@ -1,6 +1,7 @@
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.api.errors.NoHeadException
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
@@ -57,8 +58,8 @@ class GitStats(repo: Repository) {
                 .asScala
                 .map(toCommit)
                 .toList
-        finally
-            git.close()
+        catch case _: NoHeadException => List.empty
+        finally git.close()
     }
 
     private def toCommit(commit: RevCommit): Commit = {
