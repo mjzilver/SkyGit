@@ -10,5 +10,6 @@ lazy val root = project
 
         libraryDependencies += "org.scalameta" %% "munit" % "1.3.4" % Test,
         libraryDependencies += "org.eclipse.jgit" % "org.eclipse.jgit" % "7.7.1.202607240634-r",
-        libraryDependencies += "org.jmdns" % "jmdns" % "3.6.3"
+        libraryDependencies += "org.jmdns" % "jmdns" % "3.6.3",
+        libraryDependencies += "com.lihaoyi" %% "upickle" % "4.3.2"
     )

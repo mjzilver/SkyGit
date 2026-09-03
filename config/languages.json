@@ -1,0 +1,362 @@
+{
+  "languages": [
+    {
+      "name": "TypeScript",
+      "extensions": ["ts"]
+    },
+    {
+      "name": "TSX",
+      "extensions": ["tsx"]
+    },
+    {
+      "name": "JavaScript",
+      "extensions": ["js", "mjs", "cjs"]
+    },
+    {
+      "name": "Go",
+      "extensions": ["go"]
+    },
+    {
+      "name": "C++",
+      "extensions": ["cpp", "cc", "cxx", "c++"]
+    },
+    {
+      "name": "C++ Header",
+      "extensions": ["hpp", "hh", "hxx", "h++", "ipp", "tpp"]
+    },
+    {
+      "name": "C",
+      "extensions": ["c"]
+    },
+    {
+      "name": "C Header",
+      "extensions": ["h"]
+    },
+    {
+      "name": "C#",
+      "extensions": ["cs"]
+    },
+    {
+      "name": "Java",
+      "extensions": ["java"]
+    },
+    {
+      "name": "Kotlin",
+      "extensions": ["kt", "kts"]
+    },
+    {
+      "name": "Scala",
+      "extensions": ["scala", "sc"]
+    },
+    {
+      "name": "Rust",
+      "extensions": ["rs"]
+    },
+    {
+      "name": "Python",
+      "extensions": ["py", "pyw", "pyi"]
+    },
+    {
+      "name": "PHP",
+      "extensions": ["php", "php3", "php4", "php5", "php7", "phtml"]
+    },
+    {
+      "name": "Ruby",
+      "extensions": ["rb", "rbw"]
+    },
+    {
+      "name": "Swift",
+      "extensions": ["swift"]
+    },
+    {
+      "name": "Dart",
+      "extensions": ["dart"]
+    },
+    {
+      "name": "Objective-C",
+      "extensions": ["m"]
+    },
+    {
+      "name": "Objective-C++",
+      "extensions": ["mm"]
+    },
+    {
+      "name": "Groovy",
+      "extensions": ["groovy", "gvy", "gy"]
+    },
+    {
+      "name": "F#",
+      "extensions": ["fs", "fsi", "fsx"]
+    },
+    {
+      "name": "Visual Basic",
+      "extensions": ["vb", "vbs"]
+    },
+    {
+      "name": "D",
+      "extensions": ["d"]
+    },
+    {
+      "name": "Zig",
+      "extensions": ["zig"]
+    },
+    {
+      "name": "Lua",
+      "extensions": ["lua"]
+    },
+    {
+      "name": "Perl",
+      "extensions": ["pl", "pm"]
+    },
+    {
+      "name": "R",
+      "extensions": ["r"]
+    },
+    {
+      "name": "Haskell",
+      "extensions": ["hs", "lhs"]
+    },
+    {
+      "name": "OCaml",
+      "extensions": ["ml", "mli"]
+    },
+    {
+      "name": "Clojure",
+      "extensions": ["clj", "cljc"]
+    },
+    {
+      "name": "ClojureScript",
+      "extensions": ["cljs"]
+    },
+    {
+      "name": "Elixir",
+      "extensions": ["ex", "exs"]
+    },
+    {
+      "name": "Erlang",
+      "extensions": ["erl", "hrl"]
+    },
+    {
+      "name": "Gleam",
+      "extensions": ["gleam"]
+    },
+    {
+      "name": "Elm",
+      "extensions": ["elm"]
+    },
+    {
+      "name": "Shell",
+      "extensions": ["sh"]
+    },
+    {
+      "name": "PowerShell",
+      "extensions": ["ps1", "psm1", "psd1"]
+    },
+    {
+      "name": "Batch",
+      "extensions": ["bat", "cmd"]
+    },
+    {
+      "name": "SQL",
+      "extensions": ["sql"]
+    },
+    {
+      "name": "GraphQL",
+      "extensions": ["graphql", "gql"]
+    },
+    {
+      "name": "HTML",
+      "extensions": ["html", "htm"]
+    },
+    {
+      "name": "CSS",
+      "extensions": ["css"]
+    },
+    {
+      "name": "Sass",
+      "extensions": ["sass"]
+    },
+    {
+      "name": "SCSS",
+      "extensions": ["scss"]
+    },
+    {
+      "name": "Less",
+      "extensions": ["less"]
+    },
+    {
+      "name": "Vue",
+      "extensions": ["vue"]
+    },
+    {
+      "name": "Svelte",
+      "extensions": ["svelte"]
+    },
+    {
+      "name": "SVG",
+      "extensions": ["svg"]
+    },
+    {
+      "name": "XML",
+      "extensions": ["xml", "xsd", "xsl", "xslt"]
+    },
+    {
+      "name": "JSON",
+      "extensions": ["json"]
+    },
+    {
+      "name": "JSON5",
+      "extensions": ["json5"]
+    },
+    {
+      "name": "JSONC",
+      "extensions": ["jsonc"]
+    },
+    {
+      "name": "YAML",
+      "extensions": ["yaml", "yml"]
+    },
+    {
+      "name": "TOML",
+      "extensions": ["toml"]
+    },
+    {
+      "name": "INI",
+      "extensions": ["ini"]
+    },
+    {
+      "name": "HCL",
+      "extensions": ["hcl"]
+    },
+    {
+      "name": "Terraform",
+      "extensions": ["tf", "tfvars"]
+    },
+    {
+      "name": "Nix",
+      "extensions": ["nix"]
+    },
+    {
+      "name": "Makefile",
+      "extensions": ["mk", "mak"]
+    },
+    {
+      "name": "CMake",
+      "extensions": ["cmake"]
+    },
+    {
+      "name": "Dockerfile",
+      "extensions": ["dockerfile"]
+    },
+    {
+      "name": "Bicep",
+      "extensions": ["bicep"]
+    },
+    {
+      "name": "GLSL",
+      "extensions": ["glsl", "vert", "frag", "geom", "tesc", "tese", "comp"]
+    },
+    {
+      "name": "HLSL",
+      "extensions": ["hlsl"]
+    },
+    {
+      "name": "Protobuf",
+      "extensions": ["proto"]
+    },
+    {
+      "name": "EDN",
+      "extensions": ["edn"]
+    },
+    {
+      "name": "Markdown",
+      "extensions": ["md", "markdown"]
+    },
+    {
+      "name": "LaTeX",
+      "extensions": ["tex"]
+    },
+    {
+      "name": "Plain Text",
+      "extensions": ["txt"]
+    },
+    {
+      "name": "Assembly",
+      "extensions": ["asm", "s"]
+    },
+    {
+      "name": "Fortran",
+      "extensions": ["f", "for", "f77", "f90", "f95", "f03", "f08"]
+    },
+    {
+      "name": "Pascal",
+      "extensions": ["pas", "pp"]
+    },
+    {
+      "name": "Ada",
+      "extensions": ["ada", "adb", "ads"]
+    },
+    {
+      "name": "COBOL",
+      "extensions": ["cob", "cbl"]
+    },
+    {
+      "name": "Prolog",
+      "extensions": ["pro", "prolog"]
+    },
+    {
+      "name": "Scheme",
+      "extensions": ["scm"]
+    },
+    {
+      "name": "Common Lisp",
+      "extensions": ["lisp", "lsp", "cl"]
+    },
+    {
+      "name": "Racket",
+      "extensions": ["rkt"]
+    },
+    {
+      "name": "CoffeeScript",
+      "extensions": ["coffee"]
+    },
+    {
+      "name": "ActionScript",
+      "extensions": ["as"]
+    },
+    {
+      "name": "GDScript",
+      "extensions": ["gd"]
+    },
+    {
+      "name": "SystemVerilog",
+      "extensions": ["sv", "svh"]
+    },
+    {
+      "name": "CUDA",
+      "extensions": ["cu", "cuh"]
+    },
+    {
+      "name": "QML",
+      "extensions": ["qml"]
+    },
+    {
+      "name": "Jinja",
+      "extensions": ["jinja", "jinja2", "j2"]
+    }
+  ],
+  "filenames": [
+    {
+        "name": "Makefile",
+        "filenames": ["Makefile"]
+    },
+    {
+        "name": "Dockerfile",
+        "filenames": ["Dockerfile"]
+    },
+    {
+        "name": "CMake",
+        "filenames": ["CMakeLists.txt"]
+    }
+  ]
+}

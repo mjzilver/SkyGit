@@ -1,4 +1,5 @@
 import org.eclipse.jgit.api.Git
+import upickle.default.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.api.errors.NoHeadException
@@ -14,6 +15,14 @@ import scala.jdk.CollectionConverters.*
 case class LineStats(
     added: Int,
     deleted: Int
+) {
+    def net: Int = added - deleted
+}
+
+case class FileChange(
+    path: String,
+    language: Option[String],
+    stats: LineStats
 )
 
 case class Commit(
@@ -22,8 +31,18 @@ case class Commit(
     message: String,
     timestamp: Int,
     revCommit: RevCommit,
-    loc: LineStats
-)
+    files: List[FileChange]
+) {
+    def loc: LineStats =
+        files
+            .map(_.stats)
+            .foldLeft(LineStats(0, 0)) { (a, b) =>
+                LineStats(
+                    a.added + b.added,
+                    a.deleted + b.deleted
+                )
+            }
+}
 
 case class AuthorStats(
     name: String,
@@ -32,7 +51,9 @@ case class AuthorStats(
 ) {
     def netLines: Int =
         commits.values.map(stats => stats.added - stats.deleted).sum
-    def displayName: String = s"$name <$email>"
+
+    def displayName: String =
+        s"$name <$email>"
 }
 
 case class Stats(
@@ -41,7 +62,10 @@ case class Stats(
     authors: Map[String, AuthorStats]
 )
 
-class GitStats(repo: Repository) {
+class GitStats(
+    repo: Repository,
+    languageConfig: LanguageConfig
+) {
 
     private val formatter =
         new DiffFormatter(DisabledOutputStream.INSTANCE)
@@ -69,11 +93,11 @@ class GitStats(repo: Repository) {
             message = commit.getShortMessage,
             timestamp = commit.getCommitTime,
             revCommit = commit,
-            loc = calcLoc(commit)
+            files = calcFiles(commit)
         )
     }
 
-    def calcLoc(commit: RevCommit): LineStats = {
+    private def calcFiles(commit: RevCommit): List[FileChange] = {
         val diffs =
             if commit.getParentCount > 0 then
                 formatter.scan(
@@ -93,21 +117,58 @@ class GitStats(repo: Repository) {
                     )
                 finally reader.close()
 
-        countEdits(diffs.asScala.toList)
+        diffs.asScala.toList.map { diff =>
+            FileChange(
+                path = filePath(diff),
+                language = detectLanguage(filePath(diff)),
+                stats = countEdits(diff)
+            )
+        }
     }
 
-    private def countEdits(diffs: List[DiffEntry]): LineStats = {
-        diffs.foldLeft(LineStats(0, 0)) { case (stats, diff) =>
-            val header = formatter.toFileHeader(diff)
+    private def filePath(diff: DiffEntry): String = {
+        diff.getChangeType match
+            case DiffEntry.ChangeType.DELETE =>
+                diff.getOldPath
 
-            header.toEditList.asScala.foldLeft(stats) { case (stats, edit) =>
-                LineStats(
-                    added = stats.added +
-                        edit.getEndB - edit.getBeginB,
-                    deleted = stats.deleted +
-                        edit.getEndA - edit.getBeginA
-                )
+            case _ =>
+                diff.getNewPath
+    }
+
+    private def detectLanguage(
+        filePath: String
+    ): Option[String] = {
+
+        val filename =
+            filePath.split('/').last
+
+        languageConfig.filenames
+            .find(_.filenames.contains(filename))
+            .map(_.name)
+            .orElse {
+                val extension =
+                    filename
+                        .lastIndexOf('.') match
+                        case -1    => None
+                        case index => Some(filename.substring(index + 1).toLowerCase)
+
+                extension.flatMap { ext =>
+                    languageConfig.languages
+                        .find(_.extensions.exists(_.equalsIgnoreCase(ext)))
+                        .map(_.name)
+                }
             }
+    }
+
+    private def countEdits(diff: DiffEntry): LineStats = {
+        val header =
+            formatter.toFileHeader(diff)
+
+        header.toEditList.asScala.foldLeft(LineStats(0, 0)) { case (stats, edit) =>
+            LineStats(
+                added = stats.added + edit.getEndB - edit.getBeginB,
+                deleted = stats.deleted + edit.getEndA - edit.getBeginA
+            )
         }
     }
 

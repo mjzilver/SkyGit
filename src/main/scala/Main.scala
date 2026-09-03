@@ -27,7 +27,8 @@ def printStats(repoPath: File): Unit = {
 
         case Some(repo) =>
             try
-                val gitStats = new GitStats(repo)
+                val languageConfig = ConfigLoader.load()
+                val gitStats = new GitStats(repo, languageConfig)
                 val printer = new StatsPrinter()
 
                 val commits = gitStats.loadCommits()
@@ -78,17 +79,25 @@ def main(args: Array[String]): Unit = {
                 case None =>
                     println(s"Invalid port: $portArg")
 
+        case "--help" :: Nil | "-h" :: Nil | "help" :: Nil =>
+            printUsage()
+
         case repoArg :: Nil =>
             printStats(File(repoArg).getCanonicalFile)
 
         case _ =>
-            println("Usage:")
-            println("  skygit <repository>                      Print repository stats")
-            println(
-                "  skygit mirror <repository> <destination> Push repository to a mirror location"
-            )
-            println(
-                "  skygit server <baseDir> [port]            Run a local git server storing repos in baseDir"
-            )
+            printUsage()
     }
+}
+
+def printUsage(): Unit = {
+    println("Usage:")
+    println("  skygit <repository>                       Print repository stats")
+    println("  skygit mirror <repository> <destination>  Push repository to a mirror location")
+    println(
+        "  skygit server <baseDir> [port]            Run a local git server storing repos in baseDir"
+    )
+    println()
+    println("Options:")
+    println("  -h, --help                                Show this help message")
 }

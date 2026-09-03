@@ -35,12 +35,31 @@ class StatsPrinter {
             stats.authors.size.toString
         )
 
+        printStatLine(
+            "Top languages (lines)",
+            calculateTopLanguages(stats)
+        )
+
         println()
 
         printCommitDates(stats)
 
         println()
         printTopContributors(stats)
+    }
+
+    private def calculateTopLanguages(stats: Stats): String = {
+        stats.commits
+            .flatMap(_.files)
+            .flatMap(file => file.language.map(_ -> file.stats.net))
+            .groupBy(_._1)
+            .view
+            .mapValues(_.map(_._2).sum)
+            .toList
+            .sortBy(-_._2)
+            .take(3)
+            .map { case (lang, net) => s"$lang ($net)" }
+            .mkString(", ")
     }
 
     private def printCommitDates(stats: Stats): Unit = {
