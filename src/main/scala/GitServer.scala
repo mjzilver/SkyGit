@@ -9,18 +9,40 @@ import org.eclipse.jgit.transport.Daemon
 import org.eclipse.jgit.transport.DaemonClient
 import org.eclipse.jgit.transport.resolver.RepositoryResolver
 
-class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) extends AutoCloseable {
-
-    private val mdnsAdvertiser = new MdnsAdvertiser(port)
-
-    private val resolver: RepositoryResolver[DaemonClient] =
-        (_, name) => openOrCreate(sanitize(name))
+class GitServer(
+    baseDir: File,
+    port: Int = Daemon.DEFAULT_PORT
+) extends AutoCloseable {
 
     private val daemon = new Daemon(new InetSocketAddress(port))
+    private val mdnsAdvertiser = new MdnsAdvertiser(port)
 
-    daemon.setRepositoryResolver(resolver)
-    daemon.getService("receive-pack").setEnabled(true)
-    daemon.getService("upload-pack").setEnabled(true)
+    def start(): Unit = {
+        baseDir.mkdirs()
+
+        daemon.setRepositoryResolver(repositoryResolver)
+        daemon.getService("receive-pack").setEnabled(true)
+        daemon.getService("upload-pack").setEnabled(true)
+
+        daemon.start()
+        mdnsAdvertiser.start()
+
+        println(
+            s"SkyGit server listening on git://skygit.local:${daemon.getAddress.getPort}/"
+        )
+        println(s"Repositories stored in: ${baseDir.getAbsolutePath}")
+    }
+
+    def stop(): Unit = {
+        daemon.stop()
+        mdnsAdvertiser.stop()
+    }
+
+    override def close(): Unit =
+        stop()
+
+    private val repositoryResolver: RepositoryResolver[DaemonClient] =
+        (_, name) => openOrCreate(sanitize(name))
 
     private def sanitize(name: String): String = {
         val cleaned = name.stripPrefix("/").stripSuffix(".git")
@@ -46,18 +68,4 @@ class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) extends AutoClos
             .setMustExist(true)
             .build()
     }
-
-    def start(): Unit = {
-        baseDir.mkdirs()
-        daemon.start()
-        mdnsAdvertiser.start()
-        println(s"SkyGit server listening on git://skygit.local:${daemon.getAddress.getPort}/")
-        println(s"Repositories stored in: ${baseDir.getAbsolutePath}")
-    }
-
-    def stop(): Unit =
-        daemon.stop()
-        mdnsAdvertiser.stop()
-
-    override def close(): Unit = stop()
 }
