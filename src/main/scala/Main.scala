@@ -36,7 +36,7 @@ def mirror(repoPath: File, destination: String): Unit = {
     val repo = openRepository(repoPath)
 
     try
-        new GitMirror(repo).mirrorTo(destination)
+        new GitMirror(repo, repoPath.getName).mirrorTo(destination)
     finally repo.close()
 }
 
@@ -68,7 +68,11 @@ def main(args: Array[String]): Unit = {
         case _ =>
             println("Usage:")
             println("  skygit <repository>                      Print repository stats")
-            println("  skygit mirror <repository> <destination> Push repository to a mirror location")
-            println("  skygit server <baseDir> [port]            Run a local git server storing repos in baseDir")
+            println(
+                "  skygit mirror <repository> <destination> Push repository to a mirror location"
+            )
+            println(
+                "  skygit server <baseDir> [port]            Run a local git server storing repos in baseDir"
+            )
     }
 }

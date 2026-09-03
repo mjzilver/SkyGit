@@ -1,4 +1,5 @@
 import java.io.File
+import java.net.URI
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
@@ -6,8 +7,7 @@ import org.eclipse.jgit.transport.PushResult
 
 import scala.jdk.CollectionConverters.*
 
-/** Pushes a repository's branches and tags to a mirror destination, creating it if needed. */
-class GitMirror(repo: Repository) {
+class GitMirror(repo: Repository, repoName: String) {
 
     def mirrorTo(destination: String): Unit = {
         val target = resolveDestination(destination)
@@ -27,19 +27,31 @@ class GitMirror(repo: Repository) {
     }
 
     private def resolveDestination(destination: String): String = {
-        if destination.contains("://") then destination
+        if destination.contains("://") then
+            if hasExplicitPath(destination) then destination
+            else s"${destination.stripSuffix("/")}/$repoName"
         else
             val dir = new File(destination).getCanonicalFile
+            val target =
+                if isBareRepo(dir) || dir.getName.endsWith(".git") then dir
+                else new File(dir, s"$repoName.git")
 
-            if !new File(dir, "HEAD").exists() then
+            if !isBareRepo(target) then
                 Git.init()
-                    .setDirectory(dir)
+                    .setDirectory(target)
                     .setBare(true)
                     .call()
                     .close()
 
-            dir.getAbsolutePath
+            target.getAbsolutePath
     }
+
+    private def hasExplicitPath(destination: String): Boolean = {
+        val path = Option(new URI(destination).getPath).getOrElse("")
+        path.nonEmpty && path != "/"
+    }
+
+    private def isBareRepo(dir: File): Boolean = new File(dir, "HEAD").exists()
 
     private def printPushResult(result: PushResult): Unit = {
         result.getRemoteUpdates.asScala.foreach { update =>

@@ -11,13 +11,14 @@ import org.eclipse.jgit.transport.resolver.RepositoryResolver
 
 class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) {
 
+    private val resolver: RepositoryResolver[DaemonClient] =
+        (_, name) => openOrCreate(sanitize(name))
+
     private val daemon = new Daemon(new InetSocketAddress(port))
 
     daemon.setRepositoryResolver(resolver)
     daemon.getService("receive-pack").setEnabled(true)
-
-    private def resolver: RepositoryResolver[DaemonClient] =
-        (_, name) => openOrCreate(sanitize(name))
+    daemon.getService("upload-pack").setEnabled(true)
 
     private def sanitize(name: String): String = {
         val cleaned = name.stripPrefix("/").stripSuffix(".git")
@@ -40,6 +41,7 @@ class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) {
 
         new FileRepositoryBuilder()
             .setGitDir(dir)
+            .setMustExist(true)
             .build()
     }
 
