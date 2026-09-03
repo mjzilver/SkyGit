@@ -1,103 +1,128 @@
+import java.text.SimpleDateFormat
+import java.sql.Date
 class StatsPrinter {
 
-  def print(stats: Stats): Unit =
-    val header = s"Repository: ${stats.repoName}"
+    def print(stats: Stats): Unit = {
+        val header = s"Repository: ${stats.repoName}"
 
-    println(header)
-    println("-" * header.length)
-    println()
+        println("-" * (header.length + 2))
+        println(header)
+        println("-" * (header.length + 2))
+        println()
 
-    printStatLine(
-      "Total commits",
-      stats.commits.length.toString
-    )
+        printStatLine(
+            "Total commits",
+            stats.commits.length.toString
+        )
 
-    printStatLine(
-      "Total lines",
-      stats.linesByAuthor.values.sum.toString
-    )
+        printStatLine(
+            "Total lines",
+            stats.authors.values.map(_.netLines).sum.toString
+        )
 
-    printStatLine(
-      "Total added lines",
-      stats.commits.map(_.loc.added).sum.toString
-    )
+        printStatLine(
+            "Total added lines",
+            stats.commits.map(_.loc.added).sum.toString
+        )
 
-    printStatLine(
-      "Total deleted lines",
-      stats.commits.map(_.loc.deleted).sum.toString
-    )
+        printStatLine(
+            "Total deleted lines",
+            stats.commits.map(_.loc.deleted).sum.toString
+        )
 
-    printStatLine(
-      "Total authors",
-      stats.linesByAuthor.size.toString
-    )
+        printStatLine(
+            "Total authors",
+            stats.authors.size.toString
+        )
 
-    println()
+        println()
 
-    printCommitDates(stats)
+        printCommitDates(stats)
 
-    println()
-    printTopContributors(stats)
+        println()
+        printTopContributors(stats)
+    }
 
-  private def printCommitDates(stats: Stats): Unit =
-    val firstCommit = stats.commits.lastOption
-    val lastCommit = stats.commits.headOption
+    private def printCommitDates(stats: Stats): Unit = {
+        val firstCommit = stats.commits.lastOption
+        val lastCommit = stats.commits.headOption
 
-    val age =
-      for
-        first <- firstCommit
-        last <- lastCommit
-      yield last.timestamp - first.timestamp
+        val age =
+            for
+                first <- firstCommit
+                last <- lastCommit
+            yield last.timestamp - first.timestamp
 
-    printStatLine(
-      "First commit",
-      firstCommit
-        .map(commit => timestampToDate(commit.timestamp))
-        .getOrElse("N/A")
-    )
+        printStatLine(
+            "First commit",
+            firstCommit
+                .map(commit => timestampToDate(commit.timestamp))
+                .getOrElse("N/A")
+        )
 
-    printStatLine(
-      "Last commit",
-      lastCommit
-        .map(commit => timestampToDate(commit.timestamp))
-        .getOrElse("N/A")
-    )
+        printStatLine(
+            "Last commit",
+            lastCommit
+                .map(commit => timestampToDate(commit.timestamp))
+                .getOrElse("N/A")
+        )
 
-    printStatLine(
-      "Age",
-      age
-        .map(timestampToDuration)
-        .getOrElse("N/A")
-    )
+        printStatLine(
+            "Age",
+            age
+                .map(timestampToDuration)
+                .getOrElse("N/A")
+        )
+    }
 
-  private def printTopContributors(stats: Stats): Unit =
-    println("Top contributors:")
+    private def printTopContributors(stats: Stats): Unit = {
+        println("Top contributors:")
 
-    stats.linesByAuthor.toList
-      .sortBy(-_._2)
-      .take(3)
-      .foreach { case (author, lines) =>
-        printStatLine(author, lines.toString)
-      }
+        val total = stats.authors.values.map(_.netLines).sum
 
-  private def printStatLine(
-      key: String,
-      value: String
-  ): Unit =
-    println(f"$key%-20s: $value")
+        stats.authors.toList
+            .sortBy(-_._2.netLines)
+            .take(5)
+            .foreach { case (email, authorStats) =>
+                val percentage =
+                    if (total > 0) (authorStats.netLines.toDouble / total * 100).round
+                    else 0
+                printStatLine(
+                    authorStats.displayName,
+                    s"${authorStats.netLines} ($percentage%)"
+                )
+            }
+    }
 
-  private def timestampToDate(timestamp: Int): String =
-    val date = new java.util.Date(timestamp.toLong * 1000)
-    val format = new java.text.SimpleDateFormat(
-      "yyyy-MM-dd HH:mm:ss"
-    )
+    private def printStatLine(
+        key: String,
+        value: String
+    ): Unit = {
+        println(f"$key%-30s: $value")
+    }
 
-    format.format(date)
+    private def timestampToDate(timestamp: Int): String = {
+        val date = new Date(timestamp.toLong * 1000)
+        val format = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss"
+        )
 
-  private def timestampToDuration(seconds: Int): String =
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
+        format.format(date)
+    }
 
-    s"${days}d ${hours % 24}h ${minutes % 60}m ${seconds % 60}s"
+    private def timestampToDuration(seconds: Int): String = {
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+        val year = days / 365
+
+        val sb = new StringBuilder
+        if (year > 0) sb.append(s"${year}y ")
+        if (days % 365 > 0) sb.append(s"${days % 365}d ")
+        if (hours % 24 > 0) sb.append(s"${hours % 24}h ")
+        if (minutes % 60 > 0) sb.append(s"${minutes % 60}m ")
+        sb.append(s"${seconds % 60}s ")
+
+        sb.toString()
+    }
 }

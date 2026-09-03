@@ -1,3 +1,3 @@
 # SkyGit
 
-Simple Git CLI tool for generating a report containing various stats.
+Simple Git CLI tool for generating a Git repository report containing various stats.
