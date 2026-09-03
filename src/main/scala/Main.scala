@@ -2,6 +2,7 @@ import java.io.File
 
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.transport.Daemon
 
 def openRepository(repoPath: File): Repository = {
     val gitDir = File(repoPath, ".git")
@@ -13,12 +14,7 @@ def openRepository(repoPath: File): Repository = {
         .build()
 }
 
-def main(args: Array[String]): Unit = {
-    if args.length < 1 then
-        println("Usage: skygit <repository>")
-        return
-
-    val repoPath = File(args(0)).getCanonicalFile
+def printStats(repoPath: File): Unit = {
     val repo = openRepository(repoPath)
 
     try
@@ -34,4 +30,45 @@ def main(args: Array[String]): Unit = {
         printer.print(stats)
 
     finally repo.close()
+}
+
+def mirror(repoPath: File, destination: String): Unit = {
+    val repo = openRepository(repoPath)
+
+    try
+        new GitMirror(repo).mirrorTo(destination)
+    finally repo.close()
+}
+
+def startServer(baseDir: File, port: Int): Unit = {
+    val server = new GitServer(baseDir, port)
+    server.start()
+
+    Runtime.getRuntime.addShutdownHook(
+        Thread(() => server.stop())
+    )
+
+    Thread.currentThread().join()
+}
+
+def main(args: Array[String]): Unit = {
+    args.toList match {
+        case "mirror" :: repoArg :: destination :: Nil =>
+            mirror(File(repoArg).getCanonicalFile, destination)
+
+        case "server" :: baseDirArg :: Nil =>
+            startServer(File(baseDirArg).getCanonicalFile, Daemon.DEFAULT_PORT)
+
+        case "server" :: baseDirArg :: portArg :: Nil =>
+            startServer(File(baseDirArg).getCanonicalFile, portArg.toInt)
+
+        case repoArg :: Nil =>
+            printStats(File(repoArg).getCanonicalFile)
+
+        case _ =>
+            println("Usage:")
+            println("  skygit <repository>                      Print repository stats")
+            println("  skygit mirror <repository> <destination> Push repository to a mirror location")
+            println("  skygit server <baseDir> [port]            Run a local git server storing repos in baseDir")
+    }
 }

@@ -120,6 +120,7 @@ class GitStats(repo: Repository) {
             authors = calculateAuthors(commits)
         )
     }
+    
     private def calculateAuthors(
         commits: List[Commit]
     ): Map[String, AuthorStats] = {
