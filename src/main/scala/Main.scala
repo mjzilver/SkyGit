@@ -42,13 +42,13 @@ def mirror(repoPath: File, destination: String): Unit = {
 
 def startServer(baseDir: File, port: Int): Unit = {
     val server = new GitServer(baseDir, port)
-    server.start()
 
-    Runtime.getRuntime.addShutdownHook(
-        Thread(() => server.stop())
-    )
-
-    Thread.currentThread().join()
+    try {
+        server.start()
+        Thread.currentThread().join()
+    } finally {
+        server.close()
+    }
 }
 
 def main(args: Array[String]): Unit = {

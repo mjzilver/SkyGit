@@ -9,7 +9,9 @@ import org.eclipse.jgit.transport.Daemon
 import org.eclipse.jgit.transport.DaemonClient
 import org.eclipse.jgit.transport.resolver.RepositoryResolver
 
-class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) {
+class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) extends AutoCloseable {
+
+    private val mdnsAdvertiser = new MdnsAdvertiser(port)
 
     private val resolver: RepositoryResolver[DaemonClient] =
         (_, name) => openOrCreate(sanitize(name))
@@ -48,9 +50,14 @@ class GitServer(baseDir: File, port: Int = Daemon.DEFAULT_PORT) {
     def start(): Unit = {
         baseDir.mkdirs()
         daemon.start()
-        println(s"SkyGit server listening on git://localhost:${daemon.getAddress.getPort}/")
+        mdnsAdvertiser.start()
+        println(s"SkyGit server listening on git://skygit.local:${daemon.getAddress.getPort}/")
         println(s"Repositories stored in: ${baseDir.getAbsolutePath}")
     }
 
-    def stop(): Unit = daemon.stop()
+    def stop(): Unit =
+        daemon.stop()
+        mdnsAdvertiser.stop()
+
+    override def close(): Unit = stop()
 }
