@@ -5,6 +5,7 @@ import upickle.default.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.api.errors.NoHeadException
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
@@ -60,10 +61,17 @@ case class AuthorStats(
         s"$name <$email>"
 }
 
+case class BranchStats(
+    name: String,
+    hash: String
+)
+
 case class Stats(
     repoName: String,
     commits: List[Commit],
-    authors: Map[String, AuthorStats]
+    authors: Map[String, AuthorStats],
+    branches: List[BranchStats],
+    headHash: String
 )
 
 class GitStats(
@@ -183,8 +191,14 @@ class GitStats(
         Stats(
             repoName = repoName,
             commits = commits,
-            authors = calculateAuthors(commits)
+            authors = calculateAuthors(commits),
+            branches = calculateBranches(),
+            headHash = calculateHeadHash()
         )
+    }
+
+    private def calculateHeadHash(): String = {
+        Option(repo.resolve(Constants.HEAD)).map(_.getName).getOrElse("")
     }
 
     private def calculateAuthors(
@@ -207,6 +221,13 @@ class GitStats(
                 )
             }
     }
+
+    private def calculateBranches(): List[BranchStats] =
+        repo.getRefDatabase
+            .getRefsByPrefix(Constants.R_HEADS)
+            .asScala
+            .map(ref => BranchStats(Repository.shortenRefName(ref.getName), ref.getObjectId.name()))
+            .toList
 }
 
 object StatsAnalysis {

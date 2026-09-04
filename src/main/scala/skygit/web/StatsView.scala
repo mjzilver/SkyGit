@@ -2,7 +2,11 @@ package skygit.web
 
 import upickle.default.*
 
-import skygit.git.{Stats, StatsAnalysis}
+import skygit.git.{Stats, StatsAnalysis, BranchStats}
+case class BranchStatsView(
+    name: String,
+    hash: String
+) derives ReadWriter
 
 case class LanguageStatsView(
     language: String,
@@ -28,7 +32,9 @@ case class RepoStatsView(
     lastCommitDate: String,
     ageSeconds: Int,
     topLanguages: List[LanguageStatsView],
-    topAuthors: List[AuthorStatsView]
+    topAuthors: List[AuthorStatsView],
+    branches: List[BranchStatsView],
+    headHash: String,
 ) derives ReadWriter
 
 object StatsView {
@@ -69,7 +75,9 @@ object StatsView {
                 .getOrElse("N/A"),
             ageSeconds = StatsAnalysis.ageSeconds(stats).getOrElse(0),
             topLanguages = topLanguages,
-            topAuthors = topAuthors
+            topAuthors = topAuthors,
+            branches = stats.branches.map(branch => BranchStatsView(branch.name, branch.hash)),
+            headHash = stats.headHash
         )
     }
 }

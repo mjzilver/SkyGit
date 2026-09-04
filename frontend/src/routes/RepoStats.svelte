@@ -1,17 +1,17 @@
 <script>
-import { getStats } from "../api.js";
+  import { getStats } from "../api.js";
 
-let { params } = $props();
-let repo = $derived(params.repo);
+  let { params } = $props();
+  let repo = $derived(params.repo);
 
-let stats = $state(null);
-let error = $state(null);
+  let stats = $state(null);
+  let error = $state(null);
 
-$effect(() => {
-	getStats(repo)
-		.then((s) => (stats = s))
-		.catch((e) => (error = e.message));
-});
+  $effect(() => {
+    getStats(repo)
+      .then((s) => (stats = s))
+      .catch((e) => (error = e.message));
+  });
 </script>
 
 <div class="breadcrumbs"><a href="#/">Repositories</a> / {repo}</div>
@@ -33,6 +33,12 @@ $effect(() => {
       <div class="value">{stats.totalCommits}</div>
       <div class="label">Commits</div>
     </div>
+    {#if stats.branches.length > 1}
+    <div class="stat">
+      <div class="value">{stats.branches.length}</div>
+      <div class="label">Branches</div>
+    </div>
+    {/if}
     <div class="stat">
       <div class="value">{stats.totalAuthors}</div>
       <div class="label">Authors</div>
