@@ -1,3 +1,5 @@
+package skygit.git
+
 import org.eclipse.jgit.api.Git
 import upickle.default.*
 import org.eclipse.jgit.diff.DiffEntry
@@ -9,6 +11,8 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.io.DisabledOutputStream
+
+import skygit.config.LanguageConfig
 
 import scala.jdk.CollectionConverters.*
 
@@ -202,5 +206,70 @@ class GitStats(
                     commits = commitStats
                 )
             }
+    }
+}
+
+object StatsAnalysis {
+
+    def totalNetLines(stats: Stats): Int =
+        stats.authors.values.map(_.netLines).sum
+
+    def topLanguages(stats: Stats, limit: Int = 3): List[(String, Int)] =
+        stats.commits
+            .flatMap(_.files)
+            .flatMap(file => file.language.map(_ -> file.stats.net))
+            .groupBy(_._1)
+            .view
+            .mapValues(_.map(_._2).sum)
+            .toList
+            .sortBy(-_._2)
+            .take(limit)
+
+    def topContributors(stats: Stats, limit: Int = 5): List[(AuthorStats, Long)] = {
+        val total = totalNetLines(stats)
+
+        stats.authors.values.toList
+            .sortBy(-_.netLines)
+            .take(limit)
+            .map { author =>
+                val percentage =
+                    if total > 0 then (author.netLines.toDouble / total * 100).round
+                    else 0L
+
+                author -> percentage
+            }
+    }
+
+    def firstCommit(stats: Stats): Option[Commit] = stats.commits.lastOption
+
+    def lastCommit(stats: Stats): Option[Commit] = stats.commits.headOption
+
+    def ageSeconds(stats: Stats): Option[Int] =
+        for
+            first <- firstCommit(stats)
+            last <- lastCommit(stats)
+        yield last.timestamp - first.timestamp
+
+    def formatTimestamp(timestamp: Int): String = {
+        val date = new java.sql.Date(timestamp.toLong * 1000)
+        val format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+        format.format(date)
+    }
+
+    def formatDuration(seconds: Int): String = {
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+        val year = days / 365
+
+        val sb = new StringBuilder
+        if (year > 0) sb.append(s"${year}y ")
+        if (days % 365 > 0) sb.append(s"${days % 365}d ")
+        if (hours % 24 > 0) sb.append(s"${hours % 24}h ")
+        if (minutes % 60 > 0) sb.append(s"${minutes % 60}m ")
+        sb.append(s"${seconds % 60}s ")
+
+        sb.toString().trim
     }
 }

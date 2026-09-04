@@ -34,3 +34,4 @@ metals.sbt
 
 backups/
 
+src/main/resources/web/assets

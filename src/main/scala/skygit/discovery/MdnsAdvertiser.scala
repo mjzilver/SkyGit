@@ -1,7 +1,9 @@
+package skygit.discovery
+
 import java.net.InetAddress
 import javax.jmdns.{JmDNS, ServiceInfo}
 
-class MdnsAdvertiser(port: Int) {
+class MdnsAdvertiser(gitPort: Int, webPort: Int) extends AutoCloseable {
 
     private var jmdns: Option[JmDNS] = None
 
@@ -12,18 +14,30 @@ class MdnsAdvertiser(port: Int) {
         val service = ServiceInfo.create(
             "_git._tcp.local.",
             "SkyGit",
-            port,
+            gitPort,
             "SkyGit Git server"
+        )
+
+        dns.registerService(
+            ServiceInfo.create(
+                "_http._tcp.local.",
+                "SkyGit Web",
+                webPort,
+                "SkyGit web interface"
+            )
         )
 
         dns.registerService(service)
         jmdns = Some(dns)
 
-        println(s"mDNS: SkyGit advertised on port $port")
+        println(s"mDNS: SkyGit advertised on git port $gitPort and web port $webPort")
     }
 
     def stop(): Unit = {
         jmdns.foreach(_.close())
         jmdns = None
     }
+
+    override def close(): Unit =
+        stop()
 }

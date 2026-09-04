@@ -1,11 +1,44 @@
+package skygit.git
+
 import java.io.File
 import java.net.URI
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
 
 import scala.jdk.CollectionConverters.*
+
+object GitMirror {
+
+    def openRepository(repoPath: File): Option[Repository] = {
+        try {
+            val gitDir = File(repoPath, ".git")
+
+            Some(
+                new FileRepositoryBuilder()
+                    .setGitDir(gitDir)
+                    .setWorkTree(repoPath)
+                    .setMustExist(true)
+                    .build()
+            )
+        } catch {
+            case _: Exception => None
+        }
+    }
+
+    def mirror(repoPath: File, destination: String): Unit = {
+        openRepository(repoPath) match
+            case None =>
+                println(s"Could not open repository: ${repoPath.getAbsolutePath}")
+
+            case Some(repo) =>
+                try
+                    new GitMirror(repo, repoPath.getName).mirrorTo(destination)
+                finally repo.close()
+    }
+}
 
 class GitMirror(repo: Repository, repoName: String) {
 
