@@ -13,12 +13,15 @@ deploy: build
 	chmod +x "$(TARGET)"
 
 run: frontend-build
-	sbt run
+	sbt "run server"
 
 format: frontend-format
 	sbt scalafmt
 
-frontend-build:
+frontend-install:
+	cd frontend && npm install
+
+frontend-build: frontend-install
 	cd frontend && npm run build
 
 frontend-format:

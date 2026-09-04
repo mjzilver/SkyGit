@@ -23,7 +23,12 @@ onMount(async () => {
 {:else}
   <ul class="list">
     {#each repos as repo}
-      <li><a href="#/{repo}">{repo}</a></li>
+      <li class="repo-item">
+        <a href="#/{repo.name}">{repo.name}</a>
+        <span class="muted"
+          >({new Date(repo.lastModified).toLocaleString()})</span
+        >
+      </li>
     {/each}
   </ul>
 {/if}
