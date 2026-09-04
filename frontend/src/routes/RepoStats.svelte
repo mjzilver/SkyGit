@@ -1,0 +1,78 @@
+<script>
+import { getStats } from "../api.js";
+
+let { params } = $props();
+let repo = $derived(params.repo);
+
+let stats = $state(null);
+let error = $state(null);
+
+$effect(() => {
+	getStats(repo)
+		.then((s) => (stats = s))
+		.catch((e) => (error = e.message));
+});
+</script>
+
+<div class="breadcrumbs"><a href="#/">Repositories</a> / {repo}</div>
+
+<h2>{repo}</h2>
+
+<p>
+  <a href="#/{repo}/commits">Browse commits</a> ·
+  <a href="#/{repo}/tree/HEAD">Browse files</a>
+</p>
+
+{#if error}
+  <p class="muted">Failed to load stats: {error}</p>
+{:else if !stats}
+  <p class="muted">Loading…</p>
+{:else}
+  <div class="stat-grid card">
+    <div class="stat">
+      <div class="value">{stats.totalCommits}</div>
+      <div class="label">Commits</div>
+    </div>
+    <div class="stat">
+      <div class="value">{stats.totalAuthors}</div>
+      <div class="label">Authors</div>
+    </div>
+    <div class="stat">
+      <div class="value">{stats.net}</div>
+      <div class="label">Net lines</div>
+    </div>
+    <div class="stat">
+      <div class="value file-added">+{stats.added}</div>
+      <div class="label">Added</div>
+    </div>
+    <div class="stat">
+      <div class="value file-removed">-{stats.deleted}</div>
+      <div class="label">Deleted</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="muted">First commit: {stats.firstCommitDate}</p>
+    <p class="muted">Last commit: {stats.lastCommitDate}</p>
+  </div>
+
+  <div class="card">
+    <h3>Top languages</h3>
+    <ul class="list">
+      {#each stats.topLanguages as lang}
+        <li>{lang.language} — {lang.netLines} lines</li>
+      {/each}
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Top contributors</h3>
+    <ul class="list">
+      {#each stats.topAuthors as author}
+        <li>
+          {author.name} &lt;{author.email}&gt; — {author.netLines} lines ({author.percentage}%)
+        </li>
+      {/each}
+    </ul>
+  </div>
+{/if}

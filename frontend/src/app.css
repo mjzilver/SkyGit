@@ -1,0 +1,155 @@
+:root {
+	--bg: #12141a;
+	--bg-elevated: #1a1d24;
+	--border: #2a2e37;
+	--text: #c9ccd3;
+	--text-dim: #868c98;
+	--heading: #f2f3f5;
+	--accent: #6ea8fe;
+	--accent-hover: #8fbcff;
+	--added: #3fb950;
+	--removed: #f85149;
+	--code-bg: #0d0f13;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	background: var(--bg);
+	color: var(--text);
+	font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#app {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 1.5rem;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--accent-hover);
+	text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+	color: var(--heading);
+	font-weight: 600;
+}
+
+code,
+pre {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.card {
+	background: var(--bg-elevated);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+}
+
+.muted {
+	color: var(--text-dim);
+}
+
+.list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.list li {
+	border-bottom: 1px solid var(--border);
+	padding: 0.6rem 0;
+}
+
+.list li:last-child {
+	border-bottom: none;
+}
+
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 0.75rem;
+}
+
+.stat {
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 0.75rem;
+}
+
+.stat .value {
+	font-size: 1.4rem;
+	color: var(--heading);
+}
+
+.stat .label {
+	font-size: 0.8rem;
+	color: var(--text-dim);
+}
+
+.breadcrumbs {
+	margin-bottom: 1rem;
+	color: var(--text-dim);
+}
+
+.file-added {
+	color: var(--added);
+}
+
+.file-removed {
+	color: var(--removed);
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th,
+td {
+	text-align: left;
+	padding: 0.4rem 0.5rem;
+	border-bottom: 1px solid var(--border);
+}
+
+button,
+input {
+	background: var(--code-bg);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 0.35rem 0.6rem;
+	font-size: 0.9rem;
+}
+
+button {
+	cursor: pointer;
+}
+
+button:hover {
+	border-color: var(--accent);
+}
+
+pre.blob {
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 1rem;
+	overflow-x: auto;
+}
