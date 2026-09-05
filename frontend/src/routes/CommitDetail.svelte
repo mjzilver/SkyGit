@@ -2,27 +2,51 @@
 import { getCommit, getDiff } from "../api.js";
 import DiffView from "../lib/DiffView.svelte";
 
+/** @type {{ params: { repo: string, hash: string } }} */
 let { params } = $props();
+
+/** @type {string} */
 let repo = $derived(params.repo);
+
+/** @type {string} */
 let hash = $derived(params.hash);
 
+/** @type {import("../api.js").CommitDetailDto | null} */
 let commit = $state(null);
+
+/** @type {string} */
 let diff = $state("");
+
+/** @type {string | null} */
 let selectedPath = $state(null);
+
+/** @type {string | null} */
 let error = $state(null);
 
 $effect(() => {
 	getCommit(repo, hash)
-		.then((c) => (commit = c))
-		.catch((e) => (error = e.message));
+		.then((c) => {
+			commit = c;
+		})
+		.catch((e) => {
+			error = e.message;
+		});
 });
 
 $effect(() => {
-	getDiff(repo, hash, selectedPath)
-		.then((d) => (diff = d))
-		.catch((e) => (error = e.message));
+	getDiff(repo, hash, selectedPath ?? undefined)
+		.then((d) => {
+			diff = d;
+		})
+		.catch((e) => {
+			error = e.message;
+		});
 });
 
+/**
+ * @param {number} timestamp
+ * @returns {string}
+ */
 function formatDate(timestamp) {
 	return new Date(timestamp * 1000).toLocaleString();
 }

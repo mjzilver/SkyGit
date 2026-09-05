@@ -6,6 +6,9 @@ import {
 	getStatsError,
 } from "../lib/StatsCache.svelte.js";
 
+/** @typedef {import("../api.js").RepoStatsView} RepoStatsView */
+
+/** @type {{ params: { repo: string } }} */
 let { params } = $props();
 let repo = $derived(params.repo);
 
@@ -13,8 +16,11 @@ $effect(() => {
 	getRepoStats(repo).catch(() => {});
 });
 
+/** @type {RepoStatsView | null} */
 let stats = $derived(getStatsForRepo(repo));
+/** @type {boolean} */
 let loading = $derived(isStatsLoading(repo));
+/** @type {string | null} */
 let error = $derived(getStatsError(repo));
 </script>
 <div class="breadcrumbs"><a href="#/">Repositories</a> / {repo}</div>
@@ -30,7 +36,7 @@ let error = $derived(getStatsError(repo));
   <p class="muted">Failed to load stats: {error}</p>
 {:else if loading}
   <p class="muted">Loading…</p>
-{:else}
+{:else if stats != null}
   <div class="stat-grid card">
     <div class="stat">
       <div class="value">{stats.totalCommits}</div>

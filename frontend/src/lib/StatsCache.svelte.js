@@ -1,18 +1,33 @@
 import { getStats } from "../api.js";
 
+/** @typedef {import("../api.js").RepoStatsView} RepoStatsView */
+/** @typedef {import("../api.js").RepositoryInfo} RepositoryInfo */
+
+/** @type {Record<string, RepoStatsView>} */
 let statsByRepo = $state({});
+
+/** @type {Record<string, boolean>} */
 let loadingByRepo = $state({});
+
+/** @type {Record<string, string>} */
 let errorByRepo = $state({});
 
+/** @type {Map<string, Promise<RepoStatsView>>} */
 const pending = new Map();
 
+/**
+ * @param {string} repo
+ * @returns {Promise<RepoStatsView>}
+ */
 export function getRepoStats(repo) {
 	if (statsByRepo[repo]) {
 		return Promise.resolve(statsByRepo[repo]);
 	}
 
-	if (pending.has(repo)) {
-		return pending.get(repo);
+	const existing = pending.get(repo);
+
+	if (existing) {
+		return existing;
 	}
 
 	loadingByRepo[repo] = true;
@@ -37,6 +52,10 @@ export function getRepoStats(repo) {
 	return promise;
 }
 
+/**
+ * @param {RepositoryInfo[]} repos
+ * @returns {void}
+ */
 export function preloadRepoStats(repos) {
 	for (const repo of repos) {
 		getRepoStats(repo.name).catch((error) => {
@@ -45,14 +64,26 @@ export function preloadRepoStats(repos) {
 	}
 }
 
+/**
+ * @param {string} repo
+ * @returns {RepoStatsView | null}
+ */
 export function getStatsForRepo(repo) {
 	return statsByRepo[repo] ?? null;
 }
 
+/**
+ * @param {string} repo
+ * @returns {boolean}
+ */
 export function isStatsLoading(repo) {
 	return loadingByRepo[repo] ?? false;
 }
 
+/**
+ * @param {string} repo
+ * @returns {string | null}
+ */
 export function getStatsError(repo) {
 	return errorByRepo[repo] ?? null;
 }

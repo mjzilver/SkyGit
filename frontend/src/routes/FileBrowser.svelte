@@ -3,16 +3,21 @@ import hljs from "highlight.js";
 import "highlight.js/styles/github-dark.css";
 import { push } from "svelte-spa-router";
 import { getTree, getBlob, getStats } from "../api.js";
-
+/** @typedef {import("../api.js").BranchStatsView} BranchStatsView */
+/** @typedef {import("../api.js").TreeEntry} TreeEntry */
 let { params } = $props();
 
 let repo = $derived(params.repo);
 let hash = $derived(params.hash);
 let path = $derived(params.wild ?? "");
 
+/** @type {BranchStatsView[]} */
 let branches = $state([]);
-let headHash = $state("");
+/** @type {TreeEntry[]} */
 let entries = $state([]);
+
+let headHash = $state("");
+/** @type {{ path: string, content: string } | null} */
 let blob = $state(null);
 let highlighted = $state("");
 let error = $state(null);
@@ -45,30 +50,36 @@ let selectedBranchHash = $derived(
 	branches.find((b) => b.hash === currentHash)?.hash ?? "",
 );
 
+/** @param {Event & { currentTarget: HTMLSelectElement }} event */
 function onBranchChange(event) {
-	const newBranchHash = event.target.value;
+	const newBranchHash = event.currentTarget?.value;
+
 	if (newBranchHash && newBranchHash !== hash) {
 		push(`/${repo}/tree/${newBranchHash}`);
 	}
 }
 
+/** @param {Event & { currentTarget: HTMLInputElement }} event */
 function onCommitChange(event) {
-	const newHash = event.target.value.trim();
+	const newHash = event.currentTarget?.value.trim();
 	if (newHash && newHash !== hash) {
 		push(`/${repo}/tree/${newHash}`);
 	}
 }
 
+/** @param {KeyboardEvent & { currentTarget: HTMLInputElement }} event */
 function onCommitKeyDown(event) {
-	if (event.key === "Enter") {
+	if (event?.key === "Enter") {
 		onCommitChange(event);
 	}
 }
 
+/** @param {TreeEntry} entry */
 function openDir(entry) {
 	push(`/${repo}/tree/${hash}/${entry.path}`);
 }
 
+/** @param {TreeEntry} entry */
 function openFile(entry) {
 	getBlob(repo, hash, entry.path)
 		.then((content) => {

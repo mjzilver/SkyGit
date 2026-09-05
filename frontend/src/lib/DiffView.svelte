@@ -2,8 +2,10 @@
 import { html } from "diff2html";
 import "diff2html/bundles/css/diff2html.min.css";
 
+/** @type {{ diff: string }} */
 let { diff } = $props();
 
+/** @type {string} */
 let renderedHtml = $derived(
 	diff
 		? html(diff, {

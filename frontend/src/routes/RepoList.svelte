@@ -3,12 +3,25 @@ import { onMount } from "svelte";
 import { getRepos } from "../api.js";
 import { preloadRepoStats, getStatsForRepo } from "../lib/StatsCache.svelte.js";
 
-let repos = $state([]);
-let error = $state(null);
+// type definition for Repo imported from api.js
+/** @typedef {import("../api.js").RepositoryInfo} RepositoryInfo */
 
+/** @typedef {{
+ *   key: string,
+ *   label: string,
+ *   source: "repo" | "stats"
+ * }} Column */
+
+/** @type {RepositoryInfo[]} */
+let repos = $state([]);
+/** @type {string | null} */
+let error = $state(null);
+/** @type {string} */
 let sortColumn = $state("name");
+/** @type {"asc" | "desc"} */
 let sortDirection = $state("asc");
 
+/** @type {Column[]} */
 const columns = [
 	{ key: "name", label: "Repository", source: "repo" },
 	{ key: "totalCommits", label: "Commits", source: "stats" },
@@ -22,10 +35,11 @@ onMount(async () => {
 		repos = await getRepos();
 		preloadRepoStats(repos);
 	} catch (e) {
-		error = e.message;
+		error = e instanceof Error ? e.message : String(e);
 	}
 });
 
+/**  @param {string} column */
 function sortBy(column) {
 	if (sortColumn === column) {
 		sortDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -35,9 +49,14 @@ function sortBy(column) {
 	}
 }
 
+/**
+ * @param {RepositoryInfo} repo
+ * @param {Column} column
+ * @returns {string | number | null}
+ */
 function getSortValue(repo, column) {
 	if (column.source === "repo") {
-		return repo[column.key] ?? null;
+		return repo.name;
 	}
 
 	const stats = getStatsForRepo(repo.name);
@@ -46,13 +65,32 @@ function getSortValue(repo, column) {
 		return null;
 	}
 
-	return stats[column.key] ?? null;
+	switch (column.key) {
+		case "totalCommits":
+			return stats.totalCommits;
+		case "totalAuthors":
+			return stats.totalAuthors;
+		case "net":
+			return stats.net;
+		case "lastCommitDate":
+			return stats.lastCommitDate;
+	}
+	return null;
 }
 
+/**
+ * @param {string | number | null} value
+ * @returns {boolean}
+ */
 function isNA(value) {
 	return value == null || value === "N/A";
 }
 
+/**
+ * @param {string | number | null} a
+ * @param {string | number | null} b
+ * @returns {number}
+ */
 function compareValues(a, b) {
 	const aNA = isNA(a);
 	const bNA = isNA(b);

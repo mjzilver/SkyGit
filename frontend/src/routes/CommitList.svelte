@@ -1,4 +1,6 @@
 <script>
+/** @typedef {import("../api.js").CommitSummaryDto} CommitSummaryDto */
+
 import { getCommits } from "../api.js";
 
 let { params } = $props();
@@ -6,6 +8,8 @@ let repo = $derived(params.repo);
 const pageSize = 20;
 
 let page = $state(0);
+
+/** @type {CommitSummaryDto[]} */
 let commits = $state([]);
 let total = $state(0);
 let error = $state(null);
@@ -19,6 +23,9 @@ $effect(() => {
 		.catch((e) => (error = e.message));
 });
 
+/**
+ * @param {number} timestamp
+ */
 function formatDate(timestamp) {
 	return new Date(timestamp * 1000).toLocaleString();
 }
