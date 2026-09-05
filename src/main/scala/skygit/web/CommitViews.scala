@@ -37,7 +37,7 @@ object CommitViews {
     def summaryList(commits: List[Commit], total: Int): CommitListView =
         CommitListView(commits.map(summary), total)
 
-    def summary(commit: Commit): CommitSummaryDto =
+    private def summary(commit: Commit): CommitSummaryDto =
         CommitSummaryDto(
             hash = commit.hash,
             author = commit.author.getName,

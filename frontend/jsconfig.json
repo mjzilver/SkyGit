@@ -9,7 +9,7 @@
 		"sourceMap": true,
 		"esModuleInterop": true,
 		"types": ["vite/client"],
-		"skipLibCheck": true,
+		"skipLibCheck": true
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"]
 }

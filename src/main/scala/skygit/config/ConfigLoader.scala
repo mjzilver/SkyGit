@@ -1,8 +1,6 @@
 package skygit.config
 
-import java.io.File
 import java.nio.file.{Files, Path}
-import scala.io.Source
 import upickle.default.*
 
 case class Language(
@@ -27,7 +25,7 @@ case class ServerConfig(
 ) derives ReadWriter
 
 object ConfigLoader {
-    val configFilePath: String = "config/languages.json"
+    private val configFilePath: String = "config/languages.json"
     val serverConfigFilePath: String = "config/server.json"
 
     private def genericLoad[T: ReadWriter](filePath: String): Option[T] = {

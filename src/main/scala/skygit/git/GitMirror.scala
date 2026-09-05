@@ -40,7 +40,7 @@ object GitMirror {
 
 class GitMirror(repo: Repository, repoName: String) {
 
-    def mirrorTo(destination: String): Unit = {
+    private def mirrorTo(destination: String): Unit = {
         val target = resolveDestination(destination)
         val git = Git.wrap(repo)
 

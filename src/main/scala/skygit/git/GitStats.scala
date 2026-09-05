@@ -1,8 +1,8 @@
 package skygit.git
 
+import java.util
 import java.util.ArrayList
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.errors.NoHeadException
 import org.eclipse.jgit.diff.{DiffEntry, DiffFormatter}
 import org.eclipse.jgit.lib.{Constants, ObjectId, PersonIdent, Repository}
 import org.eclipse.jgit.revwalk.RevCommit
@@ -10,7 +10,6 @@ import org.eclipse.jgit.treewalk.{CanonicalTreeParser, EmptyTreeIterator}
 import org.eclipse.jgit.util.io.DisabledOutputStream
 import scala.jdk.CollectionConverters.*
 import skygit.config.LanguageConfig
-import upickle.default.*
 
 case class LineStats(
     added: Int,
@@ -152,7 +151,7 @@ class GitStats(
                             println(
                                 s"[GitStats] Failed to calculate diffs for commit ${commit.getName}: ${e.getMessage}"
                             )
-                            new ArrayList()
+                            new util.ArrayList()
                     finally reader.close()
 
             diffs.asScala.toList.filterNot(diff => isIgnoredFile(filePath(diff))).map { diff =>
@@ -244,12 +243,12 @@ class GitStats(
             repoName = repoName,
             commits = commits,
             authors = calculateAuthorStats(commits),
-            branches = getBranchStats(),
-            headHash = getHeadCommitHash()
+            branches = getBranchStats,
+            headHash = getHeadCommitHash
         )
     }
 
-    private def getHeadCommitHash(): String = {
+    private def getHeadCommitHash: String = {
         Option(repo.resolve(Constants.HEAD)).map(_.getName).getOrElse("")
     }
 
@@ -274,7 +273,7 @@ class GitStats(
             }
     }
 
-    private def getBranchStats(): List[BranchStats] =
+    private def getBranchStats: List[BranchStats] =
         repo.getRefDatabase
             .getRefsByPrefix(Constants.R_HEADS)
             .asScala

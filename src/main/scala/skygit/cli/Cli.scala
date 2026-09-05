@@ -1,6 +1,7 @@
 package skygit.cli
 
 import java.io.File
+import scala.annotation.tailrec
 import skygit.Server
 import skygit.config.{ConfigLoader, ServerConfig}
 import skygit.git.GitMirror
@@ -36,7 +37,8 @@ object Cli {
                 Cli.printUsage()
     }
 
-    def parseServerOptions(
+    @tailrec
+    private def parseServerOptions(
         args: List[String],
         config: ServerConfig
     ): Option[ServerConfig] = {
@@ -80,7 +82,7 @@ object Cli {
     private def printUsageLine(key: String, description: String): Unit =
         println(f"  $key%-45s $description")
 
-    def printUsage(): Unit =
+    private def printUsage(): Unit =
         println("Usage:")
         printUsageLine(
             "skygit mirror <repository> <destination>",
