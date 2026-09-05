@@ -2,11 +2,15 @@ package skygit.git
 
 import java.io.File
 import java.net.URI
+import java.util.concurrent.Executors
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
+import scala.concurrent.duration.*
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
+import ExecutionContext.Implicits.global
 
 object GitMirror {
 
@@ -27,9 +31,16 @@ object GitMirror {
     }
 
     def mirror(destination: String, args: String*): Unit = {
-        args.foreach { repoPath =>
-            mirrorRepo(new File(repoPath).getCanonicalFile, destination)
-        }
+        try
+            val futures = args.map { repoPath =>
+                Future {
+                    mirrorRepo(new File(repoPath).getCanonicalFile, destination)
+                }
+            }
+
+            Await.result(Future.sequence(futures), 1.minute)
+        catch case e: Exception =>
+            println(s"Error mirroring repositories: ${e.getMessage}")
     }
 
     def mirrorRepo(repoPath: File, destination: String): Unit = {
