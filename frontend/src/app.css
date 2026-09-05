@@ -138,7 +138,8 @@ td {
 }
 
 button,
-input, select {
+input,
+select {
 	background: var(--code-bg);
 	color: var(--text);
 	border: 1px solid var(--border);

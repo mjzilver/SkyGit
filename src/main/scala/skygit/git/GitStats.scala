@@ -1,5 +1,6 @@
 package skygit.git
 
+import java.util.ArrayList
 import org.eclipse.jgit.api.Git
 import upickle.default.*
 import org.eclipse.jgit.diff.DiffEntry
@@ -12,6 +13,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.util.io.DisabledOutputStream
+import org.eclipse.jgit.lib.ObjectId
 
 import skygit.config.LanguageConfig
 
@@ -79,22 +81,37 @@ class GitStats(
     languageConfig: LanguageConfig
 ) {
 
-    private val formatter =
-        new DiffFormatter(DisabledOutputStream.INSTANCE)
-
-    formatter.setRepository(repo)
+    def resolveHead(): Option[ObjectId] =
+        Option(repo.resolve("HEAD"))
+            .orElse(Option(repo.resolve("refs/heads/main")))
+            .orElse(Option(repo.resolve("refs/heads/master")))
 
     def loadCommits(): List[Commit] = {
         val git = new Git(repo)
 
         try
-            git
-                .log()
-                .call()
-                .asScala
-                .map(toCommit)
-                .toList
-        catch case _: NoHeadException => List.empty
+            resolveHead() match
+                case Some(head) =>
+                    git
+                        .log()
+                        .add(head)
+                        .call()
+                        .asScala
+                        .map(toCommit)
+                        .toList
+
+                case None =>
+                    println(s"[GitStats] No usable HEAD/main/master found for ${repo.getDirectory}")
+                    List.empty
+
+        catch
+            case e: Exception =>
+                println(
+                    s"[GitStats] Failed to load commits for ${repo.getDirectory}: " +
+                        s"${e.getClass.getSimpleName}: ${e.getMessage}"
+                )
+                e.printStackTrace()
+                List.empty
         finally git.close()
     }
 
@@ -109,7 +126,16 @@ class GitStats(
         )
     }
 
+    private def createFormatter(): DiffFormatter = {
+        val formatter =
+            new DiffFormatter(DisabledOutputStream.INSTANCE)
+
+        formatter.setRepository(repo)
+        formatter
+    }
+
     private def calcFiles(commit: RevCommit): List[FileChange] = {
+        val formatter = createFormatter()
         val diffs =
             if commit.getParentCount > 0 then
                 formatter.scan(
@@ -127,6 +153,12 @@ class GitStats(
                         new EmptyTreeIterator(),
                         tree
                     )
+                catch
+                    case e: Exception =>
+                        println(
+                            s"[GitStats] Failed to calculate diffs for commit ${commit.getName}: ${e.getMessage}"
+                        )
+                        new ArrayList()
                 finally reader.close()
 
         diffs.asScala.toList.map { diff =>
@@ -173,8 +205,7 @@ class GitStats(
     }
 
     private def countEdits(diff: DiffEntry): LineStats = {
-        val header =
-            formatter.toFileHeader(diff)
+        val header = createFormatter().toFileHeader(diff)
 
         header.toEditList.asScala.foldLeft(LineStats(0, 0)) { case (stats, edit) =>
             LineStats(

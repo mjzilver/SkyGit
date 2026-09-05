@@ -34,7 +34,7 @@ case class RepoStatsView(
     topLanguages: List[LanguageStatsView],
     topAuthors: List[AuthorStatsView],
     branches: List[BranchStatsView],
-    headHash: String,
+    headHash: String
 ) derives ReadWriter
 
 object StatsView {

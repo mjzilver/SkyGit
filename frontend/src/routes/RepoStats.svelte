@@ -1,21 +1,21 @@
 <script>
-	import {
-		getRepoStats,
-		getStatsForRepo,
-		isStatsLoading,
-		getStatsError,
-	} from "../lib/StatsCache.svelte.js";
+import {
+	getRepoStats,
+	getStatsForRepo,
+	isStatsLoading,
+	getStatsError,
+} from "../lib/StatsCache.svelte.js";
 
-	let { params } = $props();
-	let repo = $derived(params.repo);
+let { params } = $props();
+let repo = $derived(params.repo);
 
-	$effect(() => {
-		getRepoStats(repo).catch(() => {});
-	});
+$effect(() => {
+	getRepoStats(repo).catch(() => {});
+});
 
-	let stats = $derived(getStatsForRepo(repo));
-	let loading = $derived(isStatsLoading(repo));
-	let error = $derived(getStatsError(repo));
+let stats = $derived(getStatsForRepo(repo));
+let loading = $derived(isStatsLoading(repo));
+let error = $derived(getStatsError(repo));
 </script>
 <div class="breadcrumbs"><a href="#/">Repositories</a> / {repo}</div>
 

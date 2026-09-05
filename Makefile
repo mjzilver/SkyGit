@@ -4,6 +4,8 @@ VERSION := 0.1.0
 JAR := target/skygit-$(VERSION).jar
 TARGET := $(HOME)/jars/skygit.jar
 
+all: build
+
 build: frontend-build
 	sbt assembly
 

@@ -41,7 +41,7 @@ export function preloadRepoStats(repos) {
 	for (const repo of repos) {
 		getRepoStats(repo.name).catch((error) => {
 			console.error(`Failed to preload stats for repo: ${repo.name}`, error);
-	});
+		});
 	}
 }
 
