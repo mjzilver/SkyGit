@@ -156,6 +156,7 @@ let sortedRepos = $derived.by(() => {
 							{#if stats?.topLanguages?.length}
 								{stats.topLanguages
 									.map((language) => language.language)
+		              .slice(0, 3)
 									.join(", ")}
 							{:else}
 								N/A

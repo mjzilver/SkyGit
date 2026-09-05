@@ -115,7 +115,7 @@ class GitStats(
             message = commit.getShortMessage,
             timestamp = commit.getCommitTime,
             revCommit = commit,
-            files = calcFiles(commit)
+            files = calculateFileChanges(commit)
         )
     }
 
@@ -127,40 +127,43 @@ class GitStats(
         formatter
     }
 
-    private def calcFiles(commit: RevCommit): List[FileChange] = {
+    private def calculateFileChanges(commit: RevCommit): List[FileChange] = {
         val formatter = createFormatter()
-        val diffs =
-            if commit.getParentCount > 0 then
-                formatter.scan(
-                    commit.getParent(0).getTree,
-                    commit.getTree
-                )
-            else
-                val reader = repo.newObjectReader()
-
-                try
-                    val tree = new CanonicalTreeParser()
-                    tree.reset(reader, commit.getTree)
-
+        try 
+            val diffs =
+                if commit.getParentCount > 0 then
                     formatter.scan(
-                        new EmptyTreeIterator(),
-                        tree
+                        commit.getParent(0).getTree,
+                        commit.getTree
                     )
-                catch
-                    case e: Exception =>
-                        println(
-                            s"[GitStats] Failed to calculate diffs for commit ${commit.getName}: ${e.getMessage}"
-                        )
-                        new ArrayList()
-                finally reader.close()
+                else
+                    val reader = repo.newObjectReader()
 
-        diffs.asScala.toList.map { diff =>
-            FileChange(
-                path = filePath(diff),
-                language = detectLanguage(filePath(diff)),
-                stats = countEdits(diff)
-            )
-        }
+                    try
+                        val tree = new CanonicalTreeParser()
+                        tree.reset(reader, commit.getTree)
+
+                        formatter.scan(
+                            new EmptyTreeIterator(),
+                            tree
+                        )
+                    catch
+                        case e: Exception =>
+                            println(
+                                s"[GitStats] Failed to calculate diffs for commit ${commit.getName}: ${e.getMessage}"
+                            )
+                            new ArrayList()
+                    finally reader.close()
+
+            diffs.asScala.toList.filterNot(diff => isIgnoredFile(filePath(diff))).map { diff =>
+                FileChange(
+                    path = filePath(diff),
+                    language = detectLanguage(filePath(diff)),
+                    stats = calculateLineStats(diff)
+                )
+            }
+        finally
+            formatter.close()
     }
 
     private def filePath(diff: DiffEntry): String = {
@@ -197,7 +200,22 @@ class GitStats(
             }
     }
 
-    private def countEdits(diff: DiffEntry): LineStats = {
+    private val ignoredFiles = Set(
+        "package-lock.json",
+        "yarn.lock",
+        "pnpm-lock.yaml",
+        "bun.lockb",
+        "Cargo.lock",
+        "composer.lock",
+        "packages.lock.json",
+        "project.assets.json",
+        "go.sum"
+    )
+
+    private def isIgnoredFile(path: String): Boolean =
+        ignoredFiles.contains(path.split('/').last)
+
+    private def calculateLineStats(diff: DiffEntry): LineStats = {
         val header = createFormatter().toFileHeader(diff)
 
         header.toEditList.asScala.foldLeft(LineStats(0, 0)) { case (stats, edit) =>
@@ -208,24 +226,24 @@ class GitStats(
         }
     }
 
-    def calculateStats(
+    def buildStats(
         repoName: String,
         commits: List[Commit]
     ): Stats = {
         Stats(
             repoName = repoName,
             commits = commits,
-            authors = calculateAuthors(commits),
-            branches = calculateBranches(),
-            headHash = calculateHeadHash()
+            authors = calculateAuthorStats(commits),
+            branches = getBranchStats(),
+            headHash = getHeadCommitHash()
         )
     }
 
-    private def calculateHeadHash(): String = {
+    private def getHeadCommitHash(): String = {
         Option(repo.resolve(Constants.HEAD)).map(_.getName).getOrElse("")
     }
 
-    private def calculateAuthors(
+    private def calculateAuthorStats(
         commits: List[Commit]
     ): Map[String, AuthorStats] = {
         commits
@@ -246,7 +264,7 @@ class GitStats(
             }
     }
 
-    private def calculateBranches(): List[BranchStats] =
+    private def getBranchStats(): List[BranchStats] =
         repo.getRefDatabase
             .getRefsByPrefix(Constants.R_HEADS)
             .asScala
@@ -259,7 +277,7 @@ object StatsAnalysis {
     def totalNetLines(stats: Stats): Int =
         stats.authors.values.map(_.netLines).sum
 
-    def topLanguages(stats: Stats, limit: Int = 3): List[(String, Int)] =
+    def topLanguages(stats: Stats, limit: Int = 5): List[(String, Int)] =
         stats.commits
             .flatMap(_.files)
             .flatMap(file => file.language.map(_ -> file.stats.net))

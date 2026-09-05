@@ -19,7 +19,7 @@ class StatsCache(languageConfig: LanguageConfig) {
             case _ =>
                 val gitStats = new GitStats(repo, languageConfig)
                 val commits = gitStats.loadCommits()
-                val stats = gitStats.calculateStats(repoName, commits)
+                val stats = gitStats.buildStats(repoName, commits)
 
                 cache.update(repoName, (headSha, stats))
                 stats
