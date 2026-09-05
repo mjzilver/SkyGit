@@ -129,7 +129,7 @@ class GitStats(
 
     private def calculateFileChanges(commit: RevCommit): List[FileChange] = {
         val formatter = createFormatter()
-        try 
+        try
             val diffs =
                 if commit.getParentCount > 0 then
                     formatter.scan(
@@ -162,8 +162,7 @@ class GitStats(
                     stats = calculateLineStats(diff)
                 )
             }
-        finally
-            formatter.close()
+        finally formatter.close()
     }
 
     private def filePath(diff: DiffEntry): String = {
@@ -200,7 +199,7 @@ class GitStats(
             }
     }
 
-    private val ignoredFiles = Set(
+    private val ignoredStatsFiles = Set(
         "package-lock.json",
         "yarn.lock",
         "pnpm-lock.yaml",
@@ -212,8 +211,19 @@ class GitStats(
         "go.sum"
     )
 
-    private def isIgnoredFile(path: String): Boolean =
-        ignoredFiles.contains(path.split('/').last)
+    private val ignoredStatsDirectories = Set(
+        "vendor",
+        "third_party",
+        "third-party",
+        "external"
+    )
+
+    private def isIgnoredFile(path: String): Boolean = {
+        val parts = path.split('/')
+
+        ignoredStatsFiles.contains(parts.last) ||
+        parts.exists(ignoredStatsDirectories.contains)
+    }
 
     private def calculateLineStats(diff: DiffEntry): LineStats = {
         val header = createFormatter().toFileHeader(diff)
