@@ -16,7 +16,8 @@ import skygit.stats.StatsCache
 class WebServer(
     baseDir: File,
     serverPort: Int,
-    languageConfig: LanguageConfig
+    languageConfig: LanguageConfig,
+    pipelineService: PipelineService,
 ) extends cask.MainRoutes
     with AutoCloseable {
 
@@ -194,6 +195,32 @@ class WebServer(
                                     "File not found"
                                 )
                     }
+        }
+
+    @cask.post("/api/pipeline")
+    def pipelines(): cask.Response[String] =
+        abortable {
+            write(
+                pipelineService.startPipeline()
+            )
+        }
+
+
+    @cask.get("/api/pipeline/{id}/logs")
+    def pipelineLogs(id: String): cask.Response[String] =
+        abortable {
+            write(
+                pipelineService.getPipelineLogs(id)
+            )
+        }
+
+
+    @cask.post("/api/pipeline/{id}/cancel")
+    def cancelPipeline(id: String): cask.Response[String] =
+        abortable {
+            write(
+                pipelineService.cancelPipeline(id)
+            )
         }
 
     private def withRepo[T](

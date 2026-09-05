@@ -1,6 +1,7 @@
 package skygit
 
 import java.io.File
+import skygit.web.PipelineService
 
 import org.eclipse.jgit.transport.Daemon
 
@@ -22,7 +23,7 @@ object Server {
                 .getOrElse(throw new RuntimeException("Failed to load language configuration"))
 
             val gitServer = new GitServer(baseDir, gitPort)
-            val webServer = new WebServer(baseDir, webPort, languageConfig)
+            val webServer = new WebServer(baseDir, webPort, languageConfig, new PipelineService()) 
             val mdnsAdvertiser = new MdnsAdvertiser(gitPort, webPort)
 
             gitServer.start()
