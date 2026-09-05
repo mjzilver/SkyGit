@@ -30,12 +30,10 @@ object RepoRegistry {
                 case None =>
                     println(s"No commits found in repository at ${folder.getAbsolutePath}")
                     0L
-        } finally {
-            repo.close()
-        }
+        } finally repo.close()
     }
 
-    def list(baseDir: File): List[RepositoryInfo] = {
+    def list(baseDir: File): List[RepositoryInfo] =
         Option(baseDir.listFiles())
             .getOrElse(Array.empty[File])
             .filter(f =>
@@ -49,9 +47,8 @@ object RepoRegistry {
             )
             .sortBy(repo => repo.name)
             .toList
-    }
 
-    def resolve(baseDir: File, name: String): Option[Repository] = {
+    def resolve(baseDir: File, name: String): Option[Repository] =
         try {
             val dir = new File(baseDir, s"${GitPath.sanitize(name)}.git")
 
@@ -64,5 +61,4 @@ object RepoRegistry {
                         .build()
                 )
         } catch case _: Exception => None
-    }
 }

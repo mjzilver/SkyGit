@@ -28,7 +28,7 @@ object ConfigLoader {
     private val configFilePath: String = "config/languages.json"
     val serverConfigFilePath: String = "config/server.json"
 
-    private def genericLoad[T: ReadWriter](filePath: String): Option[T] = {
+    private def genericLoad[T: ReadWriter](filePath: String): Option[T] =
         if (Files.exists(Path.of(filePath))) {
             val json = Files.readString(Path.of(filePath))
             try
@@ -39,13 +39,10 @@ object ConfigLoader {
         } else {
             None
         }
-    }
 
-    def loadLanguages(): Option[LanguageConfig] = {
+    def loadLanguages(): Option[LanguageConfig] =
         genericLoad[LanguageConfig](configFilePath)
-    }
 
-    def loadServerConfig(): Option[ServerConfig] = {
+    def loadServerConfig(): Option[ServerConfig] =
         genericLoad[ServerConfig](serverConfigFilePath)
-    }
 }

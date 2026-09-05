@@ -7,14 +7,14 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
-import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import ExecutionContext.Implicits.global
 
 object GitMirror {
 
-    def openRepository(repoPath: File): Option[Repository] = {
+    def openRepository(repoPath: File): Option[Repository] =
         try {
             val gitDir = File(repoPath, ".git")
 
@@ -28,9 +28,8 @@ object GitMirror {
         } catch {
             case _: Exception => None
         }
-    }
 
-    def mirror(destination: String, args: String*): Unit = {
+    def mirror(destination: String, args: String*): Unit =
         try
             val futures = args.map { repoPath =>
                 Future {
@@ -39,11 +38,11 @@ object GitMirror {
             }
 
             Await.result(Future.sequence(futures), Duration.Inf)
-        catch case e: Exception =>
-            println(s"Error mirroring repositories: ${e.getMessage}")
-    }
+        catch
+            case e: Exception =>
+                println(s"Error mirroring repositories: ${e.getMessage}")
 
-    def mirrorRepo(repoPath: File, destination: String): Unit = {
+    def mirrorRepo(repoPath: File, destination: String): Unit =
         openRepository(repoPath) match
             case None =>
                 println(s"Could not open repository: ${repoPath.getAbsolutePath}")
@@ -52,7 +51,6 @@ object GitMirror {
                 try
                     new GitMirror(repo, repoPath.getName).mirrorTo(destination)
                 finally repo.close()
-    }
 }
 
 class GitMirror(repo: Repository, repoName: String) {
@@ -74,7 +72,7 @@ class GitMirror(repo: Repository, repoName: String) {
             git.close()
     }
 
-    private def resolveDestination(destination: String): String = {
+    private def resolveDestination(destination: String): String =
         if destination.contains("://") then
             if hasExplicitPath(destination) then destination
             else s"${destination.stripSuffix("/")}/$repoName"
@@ -92,7 +90,6 @@ class GitMirror(repo: Repository, repoName: String) {
                     .close()
 
             target.getAbsolutePath
-    }
 
     private def hasExplicitPath(destination: String): Boolean = {
         val path = Option(new URI(destination).getPath).getOrElse("")
@@ -101,9 +98,10 @@ class GitMirror(repo: Repository, repoName: String) {
 
     private def isBareRepo(dir: File): Boolean = new File(dir, "HEAD").exists()
 
-    private def printPushResult(result: PushResult): Unit = {
+    private def printPushResult(result: PushResult): Unit =
         result.getRemoteUpdates.asScala.foreach { update =>
-            println(s"$repoName mirrored: ${update.getSrcRef} -> ${update.getRemoteName}: ${update.getStatus}")
+            println(
+                s"$repoName mirrored: ${update.getSrcRef} -> ${update.getRemoteName}: ${update.getStatus}"
+            )
         }
-    }
 }

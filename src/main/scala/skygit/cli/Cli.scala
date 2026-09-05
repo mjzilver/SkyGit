@@ -2,13 +2,13 @@ package skygit.cli
 
 import java.io.File
 import scala.annotation.tailrec
-import skygit.Server
 import skygit.config.{ConfigLoader, ServerConfig}
 import skygit.git.GitMirror
+import skygit.Server
 
 object Cli {
 
-    def run(args: List[String]): Unit = {
+    def run(args: List[String]): Unit =
         args match
             case "--help" :: Nil =>
                 Cli.printUsage()
@@ -35,13 +35,12 @@ object Cli {
 
             case _ =>
                 Cli.printUsage()
-    }
 
     @tailrec
     private def parseServerOptions(
         args: List[String],
         config: ServerConfig
-    ): Option[ServerConfig] = {
+    ): Option[ServerConfig] =
         args match
             case Nil =>
                 Some(config)
@@ -77,7 +76,6 @@ object Cli {
             case _ =>
                 println(s"Unknown server option: ${args.head}")
                 None
-    }
 
     private def printUsageLine(key: String, description: String): Unit =
         println(f"  $key%-45s $description")

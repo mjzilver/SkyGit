@@ -13,7 +13,7 @@ object Server {
         baseDir: File,
         gitPort: Int = Daemon.DEFAULT_PORT,
         webPort: Int = 8080
-    ): Unit = {
+    ): Unit =
         try {
             val languageConfig = ConfigLoader
                 .loadLanguages()
@@ -30,5 +30,4 @@ object Server {
         } catch {
             case e: Exception => println(s"Failed to start server: ${e.getMessage}")
         }
-    }
 }

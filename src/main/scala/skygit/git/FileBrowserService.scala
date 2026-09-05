@@ -2,8 +2,8 @@ package skygit.git
 
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
+import org.eclipse.jgit.treewalk.TreeWalk
 import scala.collection.mutable.ListBuffer
 import upickle.default.*
 

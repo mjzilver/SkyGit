@@ -107,7 +107,7 @@ class GitStats(
         finally git.close()
     }
 
-    private def toCommit(commit: RevCommit): Commit = {
+    private def toCommit(commit: RevCommit): Commit =
         Commit(
             hash = commit.getName,
             author = commit.getAuthorIdent,
@@ -116,7 +116,6 @@ class GitStats(
             revCommit = commit,
             files = calculateFileChanges(commit)
         )
-    }
 
     private def createFormatter(): DiffFormatter = {
         val formatter =
@@ -164,14 +163,13 @@ class GitStats(
         finally formatter.close()
     }
 
-    private def filePath(diff: DiffEntry): String = {
+    private def filePath(diff: DiffEntry): String =
         diff.getChangeType match
             case DiffEntry.ChangeType.DELETE =>
                 diff.getOldPath
 
             case _ =>
                 diff.getNewPath
-    }
 
     private def detectLanguage(
         filePath: String
@@ -238,7 +236,7 @@ class GitStats(
     def buildStats(
         repoName: String,
         commits: List[Commit]
-    ): Stats = {
+    ): Stats =
         Stats(
             repoName = repoName,
             commits = commits,
@@ -246,15 +244,13 @@ class GitStats(
             branches = getBranchStats,
             headHash = getHeadCommitHash
         )
-    }
 
-    private def getHeadCommitHash: String = {
+    private def getHeadCommitHash: String =
         Option(repo.resolve(Constants.HEAD)).map(_.getName).getOrElse("")
-    }
 
     private def calculateAuthorStats(
         commits: List[Commit]
-    ): Map[String, AuthorStats] = {
+    ): Map[String, AuthorStats] =
         commits
             .groupBy(_.author.getEmailAddress)
             .map { case (email, authorCommits) =>
@@ -271,7 +267,6 @@ class GitStats(
                     commits = commitStats
                 )
             }
-    }
 
     private def getBranchStats: List[BranchStats] =
         repo.getRefDatabase

@@ -5,8 +5,8 @@ import java.net.InetSocketAddress
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.transport.resolver.RepositoryResolver
 import org.eclipse.jgit.transport.{Daemon, DaemonClient}
+import org.eclipse.jgit.transport.resolver.RepositoryResolver
 
 class GitServer(
     baseDir: File,
@@ -30,9 +30,8 @@ class GitServer(
         println(s"Repositories stored in: ${baseDir.getAbsolutePath}")
     }
 
-    def stop(): Unit = {
+    def stop(): Unit =
         daemon.stop()
-    }
 
     override def close(): Unit =
         stop()
