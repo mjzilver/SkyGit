@@ -38,7 +38,7 @@ object GitMirror {
                 }
             }
 
-            Await.result(Future.sequence(futures), 1.minute)
+            Await.result(Future.sequence(futures), Duration.Inf)
         catch case e: Exception =>
             println(s"Error mirroring repositories: ${e.getMessage}")
     }
@@ -103,7 +103,7 @@ class GitMirror(repo: Repository, repoName: String) {
 
     private def printPushResult(result: PushResult): Unit = {
         result.getRemoteUpdates.asScala.foreach { update =>
-            println(s"${update.getSrcRef} -> ${update.getRemoteName}: ${update.getStatus}")
+            println(s"$repoName mirrored: ${update.getSrcRef} -> ${update.getRemoteName}: ${update.getStatus}")
         }
     }
 }
