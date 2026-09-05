@@ -6,7 +6,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import upickle.default.ReadWriter
 import scala.jdk.CollectionConverters._
 
-case class RepositoryInfo(name: String, lastModified: Long) derives ReadWriter
+case class RepositoryInfo(name: String) derives ReadWriter
 
 object RepoRegistry {
 
@@ -44,11 +44,10 @@ object RepoRegistry {
             )
             .map(f =>
                 RepositoryInfo(
-                    f.getName.stripSuffix(".git"),
-                    getLastCommitTime(f)
+                    f.getName.stripSuffix(".git")
                 )
             )
-            .sortBy(repo => -repo.lastModified)
+            .sortBy(repo => repo.name)
             .toList
     }
 

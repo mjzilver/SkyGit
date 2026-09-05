@@ -1,19 +1,22 @@
 <script>
-  import { getStats } from "../api.js";
+	import {
+		getRepoStats,
+		getStatsForRepo,
+		isStatsLoading,
+		getStatsError,
+	} from "../lib/StatsCache.svelte.js";
 
-  let { params } = $props();
-  let repo = $derived(params.repo);
+	let { params } = $props();
+	let repo = $derived(params.repo);
 
-  let stats = $state(null);
-  let error = $state(null);
+	$effect(() => {
+		getRepoStats(repo).catch(() => {});
+	});
 
-  $effect(() => {
-    getStats(repo)
-      .then((s) => (stats = s))
-      .catch((e) => (error = e.message));
-  });
+	let stats = $derived(getStatsForRepo(repo));
+	let loading = $derived(isStatsLoading(repo));
+	let error = $derived(getStatsError(repo));
 </script>
-
 <div class="breadcrumbs"><a href="#/">Repositories</a> / {repo}</div>
 
 <h2>{repo}</h2>
@@ -25,7 +28,7 @@
 
 {#if error}
   <p class="muted">Failed to load stats: {error}</p>
-{:else if !stats}
+{:else if loading}
   <p class="muted">Loading…</p>
 {:else}
   <div class="stat-grid card">
