@@ -1,9 +1,9 @@
 package skygit.config
 
-import scala.io.Source
-import java.nio.file.{Files, Path}
-import upickle.default.*
 import java.io.File
+import java.nio.file.{Files, Path}
+import scala.io.Source
+import upickle.default.*
 
 case class Language(
     name: String,

@@ -1,17 +1,14 @@
 package skygit.web
 
 import cask.*
-import upickle.default.*
-import java.nio.file.{Files, Paths}
-
 import java.io.File
+import java.nio.file.{Files, Paths}
 import org.eclipse.jgit.lib.Repository
-import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevWalk
-
+import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import skygit.config.LanguageConfig
 import skygit.git.{DiffService, FileBrowserService, RepoRegistry}
 import skygit.stats.StatsCache
+import upickle.default.*
 
 class WebServer(
     baseDir: File,

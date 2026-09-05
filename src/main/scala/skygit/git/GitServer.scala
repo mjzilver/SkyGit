@@ -2,13 +2,11 @@ package skygit.git
 
 import java.io.File
 import java.net.InetSocketAddress
-
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.transport.Daemon
-import org.eclipse.jgit.transport.DaemonClient
 import org.eclipse.jgit.transport.resolver.RepositoryResolver
+import org.eclipse.jgit.transport.{Daemon, DaemonClient}
 
 class GitServer(
     baseDir: File,

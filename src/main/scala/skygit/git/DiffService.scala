@@ -1,13 +1,11 @@
 package skygit.git
 
+import java.io.ByteArrayOutputStream
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
-import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilter
-
-import java.io.ByteArrayOutputStream
+import org.eclipse.jgit.treewalk.{CanonicalTreeParser, EmptyTreeIterator}
 
 class DiffService(repo: Repository) {
 

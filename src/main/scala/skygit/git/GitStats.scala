@@ -2,22 +2,15 @@ package skygit.git
 
 import java.util.ArrayList
 import org.eclipse.jgit.api.Git
-import upickle.default.*
-import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.api.errors.NoHeadException
-import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.diff.{DiffEntry, DiffFormatter}
+import org.eclipse.jgit.lib.{Constants, ObjectId, PersonIdent, Repository}
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.treewalk.{CanonicalTreeParser, EmptyTreeIterator}
 import org.eclipse.jgit.util.io.DisabledOutputStream
-import org.eclipse.jgit.lib.ObjectId
-
-import skygit.config.LanguageConfig
-
 import scala.jdk.CollectionConverters.*
+import skygit.config.LanguageConfig
+import upickle.default.*
 
 case class LineStats(
     added: Int,

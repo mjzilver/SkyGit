@@ -1,11 +1,9 @@
 package skygit.cli
 
 import java.io.File
-
-import skygit.config.ServerConfig
-import skygit.git.GitMirror
-import skygit.config.ConfigLoader
 import skygit.Server
+import skygit.config.{ConfigLoader, ServerConfig}
+import skygit.git.GitMirror
 
 object Cli {
 

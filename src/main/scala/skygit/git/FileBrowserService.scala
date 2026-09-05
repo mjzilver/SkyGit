@@ -4,8 +4,8 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
-import upickle.default.*
 import scala.collection.mutable.ListBuffer
+import upickle.default.*
 
 case class TreeEntry(
     name: String,

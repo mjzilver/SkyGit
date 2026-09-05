@@ -3,8 +3,8 @@ package skygit.git
 import java.io.File
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import upickle.default.ReadWriter
 import scala.jdk.CollectionConverters._
+import upickle.default.ReadWriter
 
 case class RepositoryInfo(name: String) derives ReadWriter
 

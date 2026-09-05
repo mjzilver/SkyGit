@@ -1,9 +1,7 @@
 package skygit
 
 import java.io.File
-
 import org.eclipse.jgit.transport.Daemon
-
 import skygit.config.ConfigLoader
 import skygit.discovery.MdnsAdvertiser
 import skygit.git.GitServer

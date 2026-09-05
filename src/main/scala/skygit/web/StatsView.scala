@@ -1,8 +1,8 @@
 package skygit.web
 
+import skygit.git.{BranchStats, Stats, StatsAnalysis}
 import upickle.default.*
 
-import skygit.git.{Stats, StatsAnalysis, BranchStats}
 case class BranchStatsView(
     name: String,
     hash: String

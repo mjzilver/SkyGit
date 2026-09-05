@@ -1,8 +1,7 @@
 package skygit.web
 
-import upickle.default.*
-
 import skygit.git.Commit
+import upickle.default.*
 
 case class CommitSummaryDto(
     hash: String,

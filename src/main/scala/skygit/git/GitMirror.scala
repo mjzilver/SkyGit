@@ -2,12 +2,10 @@ package skygit.git
 
 import java.io.File
 import java.net.URI
-
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
-
 import scala.jdk.CollectionConverters.*
 
 object GitMirror {

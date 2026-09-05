@@ -1,9 +1,7 @@
 package skygit.stats
 
 import org.eclipse.jgit.lib.Repository
-
 import scala.collection.concurrent.TrieMap
-
 import skygit.config.LanguageConfig
 import skygit.git.{GitStats, Stats}
 
