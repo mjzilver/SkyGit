@@ -26,7 +26,13 @@ object GitMirror {
         }
     }
 
-    def mirror(repoPath: File, destination: String): Unit = {
+    def mirror(destination: String, args: String*): Unit = {
+        args.foreach { repoPath =>
+            mirrorRepo(new File(repoPath).getCanonicalFile, destination)
+        }
+    }
+
+    def mirrorRepo(repoPath: File, destination: String): Unit = {
         openRepository(repoPath) match
             case None =>
                 println(s"Could not open repository: ${repoPath.getAbsolutePath}")

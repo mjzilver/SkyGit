@@ -13,8 +13,8 @@ object Cli {
             case "--help" :: Nil =>
                 Cli.printUsage()
 
-            case "mirror" :: repoArg :: destination :: Nil =>
-                GitMirror.mirror(File(repoArg).getCanonicalFile, destination)
+            case "mirror" :: destination :: args =>
+                GitMirror.mirror(destination, args*)
 
             case "server" :: rest =>
                 ConfigLoader.loadServerConfig() match
@@ -85,8 +85,8 @@ object Cli {
     private def printUsage(): Unit =
         println("Usage:")
         printUsageLine(
-            "skygit mirror <repository> <destination>",
-            "Push repository to a mirror location"
+            "skygit mirror <destination> <repository>...",
+            "Push repositories to a mirror location"
         )
         printUsageLine("skygit server [options]", "Run the git server and web UI")
         println()
