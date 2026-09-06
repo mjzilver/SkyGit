@@ -73,16 +73,11 @@ class GitStats(
     languageConfig: LanguageConfig
 ) {
 
-    def resolveHead(): Option[ObjectId] =
-        Option(repo.resolve("HEAD"))
-            .orElse(Option(repo.resolve("refs/heads/main")))
-            .orElse(Option(repo.resolve("refs/heads/master")))
-
     def loadCommits(): List[Commit] = {
         val git = new Git(repo)
 
         try
-            resolveHead() match
+            GitUtils.resolveHead(repo) match
                 case Some(head) =>
                     git
                         .log()

@@ -18,12 +18,7 @@ object RepoRegistry {
                 .build()
 
         try {
-            val head =
-                Option(repo.resolve("HEAD"))
-                    .orElse(Option(repo.resolve("refs/heads/main")))
-                    .orElse(Option(repo.resolve("refs/heads/master")))
-
-            head match
+            GitUtils.resolveHead(repo) match
                 case Some(objectId) =>
                     repo.parseCommit(objectId).getCommitTime.toLong * 1000
 
@@ -50,7 +45,7 @@ object RepoRegistry {
 
     def resolve(baseDir: File, name: String): Option[Repository] =
         try {
-            val dir = new File(baseDir, s"${GitPath.sanitize(name)}.git")
+            val dir = new File(baseDir, s"${GitUtils.sanitize(name)}.git")
 
             if !dir.exists() then None
             else

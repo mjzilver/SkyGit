@@ -37,7 +37,7 @@ class GitServer(
         stop()
 
     private val repositoryResolver: RepositoryResolver[DaemonClient] =
-        (_, name) => openOrCreate(GitPath.sanitize(name))
+        (_, name) => openOrCreate(GitUtils.sanitize(name))
 
     private def openOrCreate(name: String): Repository = {
         val dir = new File(baseDir, s"$name.git")
