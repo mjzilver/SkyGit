@@ -3,15 +3,14 @@ package skygit.stats
 import org.eclipse.jgit.lib.Repository
 import scala.collection.concurrent.TrieMap
 import skygit.config.LanguageConfig
-import skygit.git.{GitStats, Stats}
-import skygit.git.GitUtils
+import skygit.git.{GitStats, GitUtils, Stats}
 
 class StatsCache(languageConfig: LanguageConfig) {
 
     private val cache = TrieMap.empty[String, (String, Stats)]
 
     def getOrCompute(repoName: String, repo: Repository): Stats = {
-        val headSha = GitUtils.resolveHead(repo).map(_.getName).getOrElse("") 
+        val headSha = GitUtils.resolveHead(repo).map(_.getName).getOrElse("")
 
         cache.get(repoName) match
             case Some((sha, stats)) if sha == headSha =>

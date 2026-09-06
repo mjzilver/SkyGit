@@ -17,7 +17,7 @@ object RepoRegistry {
                 .setMustExist(true)
                 .build()
 
-        try {
+        try
             GitUtils.resolveHead(repo) match
                 case Some(objectId) =>
                     repo.parseCommit(objectId).getCommitTime.toLong * 1000
@@ -25,7 +25,7 @@ object RepoRegistry {
                 case None =>
                     println(s"No commits found in repository at ${folder.getAbsolutePath}")
                     0L
-        } finally repo.close()
+        finally repo.close()
     }
 
     def list(baseDir: File): List[RepositoryInfo] =

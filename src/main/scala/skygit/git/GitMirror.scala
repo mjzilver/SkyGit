@@ -26,7 +26,9 @@ object GitMirror {
                     .build()
             )
         } catch {
-            case _: Exception => None
+            case e: Exception =>
+                println(s"Error opening repository at ${repoPath.getAbsolutePath}: ${e.getMessage}")
+                None
         }
 
     def mirror(destination: String, args: String*): Unit =
@@ -65,6 +67,9 @@ class GitMirror(repo: Repository, repoName: String) {
                 .setRemote(target)
                 .setPushAll()
                 .setPushTags()
+                .setTransportConfigCallback { transport =>
+                    transport.setTimeout(30)
+                }
                 .call()
                 .asScala
                 .foreach(printPushResult)
