@@ -16,9 +16,10 @@ lazy val root = project
         libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.19",
 
         assembly / assemblyMergeStrategy := {
-            case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
-            case PathList("META-INF", _*)            => MergeStrategy.discard
-            case _                                   => MergeStrategy.first
+            case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard
+            case PathList("META-INF", "services", _*) => MergeStrategy.concat
+            case PathList("META-INF", _*)             => MergeStrategy.discard
+            case _                                    => MergeStrategy.first
         },
         assembly / mainClass := Some("skygit.Main"),
         assembly / assemblyOutputPath := target.value / s"skygit-${version.value}.jar"
