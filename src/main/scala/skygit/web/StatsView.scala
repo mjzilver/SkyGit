@@ -34,12 +34,12 @@ case class RepoStatsView(
     topLanguages: List[LanguageStatsView],
     topAuthors: List[AuthorStatsView],
     branches: List[BranchStatsView],
-    headHash: String
+    headHash: Option[String],
+    readme: Option[String]
 ) derives ReadWriter
 
 object StatsView {
-
-    def build(stats: Stats): RepoStatsView = {
+    def build(stats: Stats, readme: Option[String] = None): RepoStatsView = {
         val topLanguages =
             StatsAnalysis
                 .topLanguages(stats)
@@ -77,7 +77,8 @@ object StatsView {
             topLanguages = topLanguages,
             topAuthors = topAuthors,
             branches = stats.branches.map(branch => BranchStatsView(branch.name, branch.hash)),
-            headHash = stats.headHash
+            headHash = stats.headHash,
+            readme = readme
         )
     }
 }

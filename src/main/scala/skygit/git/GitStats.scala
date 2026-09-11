@@ -65,7 +65,7 @@ case class Stats(
     commits: List[Commit],
     authors: Map[String, AuthorStats],
     branches: List[BranchStats],
-    headHash: String
+    headHash: Option[String]
 )
 
 class GitStats(
@@ -240,8 +240,8 @@ class GitStats(
             headHash = getHeadCommitHash
         )
 
-    private def getHeadCommitHash: String =
-        Option(repo.resolve(Constants.HEAD)).map(_.getName).getOrElse("")
+    private def getHeadCommitHash: Option[String] =
+        GitUtils.resolveHead(repo).map(_.getName)
 
     private def calculateAuthorStats(
         commits: List[Commit]

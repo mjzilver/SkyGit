@@ -2,9 +2,11 @@ package skygit.web
 
 import cask.*
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
+import org.eclipse.jgit.treewalk.TreeWalk
 import skygit.config.LanguageConfig
 import skygit.git.{DiffService, FileBrowserService, RepoRegistry}
 import skygit.stats.StatsCache
@@ -58,11 +60,17 @@ class WebServer(
     ): cask.Response[String] =
         abortable {
             withRepo(repoName) { repo =>
-                write(
-                    StatsView.build(
-                        statsCache.getOrCompute(repoName, repo)
-                    )
-                )
+                write {
+                    val stats = statsCache.getOrCompute(repoName, repo)
+
+                    val readmeContent = if stats.headHash.isDefined then
+                        withRevCommit(repo, stats.headHash.get) { revCommit =>
+                            getReadmeContent(repo, revCommit)
+                        }
+                    else None
+
+                    StatsView.build(stats, readmeContent)
+                }
             }
         }
 
@@ -213,23 +221,65 @@ class WebServer(
                 )
 
     private def withRevCommit[T](
+        repo: Repository,
+        hash: String
+    )(
+        f: RevCommit => T
+    ): T =
+        resolveCommit(repo, hash) match
+            case Some(revCommit) =>
+                f(revCommit)
+
+            case None =>
+                throw AbortException(
+                    404,
+                    "Commit not found"
+                )
+
+    private def withRevCommit[T](
         repoName: String,
         hash: String
     )(
         f: (Repository, RevCommit) => T
     ): T =
         withRepo(repoName) { repo =>
-            resolveCommit(repo, hash) match
-
-                case Some(revCommit) =>
-                    f(repo, revCommit)
-
-                case None =>
-                    throw AbortException(
-                        404,
-                        "Commit not found"
-                    )
+            withRevCommit(repo, hash) { revCommit =>
+                f(repo, revCommit)
+            }
         }
+
+    private def getReadmeContent(
+        repo: Repository,
+        commit: RevCommit
+    ): Option[String] = {
+        val treeWalk = new TreeWalk(repo)
+        treeWalk.addTree(commit.getTree)
+        treeWalk.setRecursive(false)
+
+        try {
+            var result: Option[String] = None
+
+            while (treeWalk.next() && result.isEmpty) {
+                val name = treeWalk.getNameString
+                val lower = name.toLowerCase
+
+                if (lower == "readme" || lower.startsWith("readme.")) {
+                    result = Some(
+                        String(
+                            repo.open(treeWalk.getObjectId(0)).getBytes,
+                            StandardCharsets.UTF_8
+                        )
+                    )
+                }
+            }
+
+            result
+        } catch {
+            case e: Exception =>
+                println(s"Failed to get README content: ${e.getMessage}")
+                None
+        } finally treeWalk.close()
+    }
 
     private def resolveCommit(
         repo: Repository,

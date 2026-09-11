@@ -6,6 +6,9 @@ import {
 	getStatsError,
 } from "../lib/StatsCache.svelte.js";
 
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt();
+
 /** @typedef {import("../api.js").RepoStatsView} RepoStatsView */
 
 /** @type {{ params: { repo: string } }} */
@@ -90,4 +93,11 @@ let error = $derived(getStatsError(repo));
       {/each}
     </ul>
   </div>
+
+  {#if stats.readme}
+    <div class="card">
+      <h3>README</h3>
+      <div class="blob">{@html md.render(stats.readme)}</div>
+    </div>
+  {/if}
 {/if}

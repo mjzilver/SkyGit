@@ -39,6 +39,7 @@
  * @property {AuthorStatsView[]} topAuthors
  * @property {BranchStatsView[]} branches
  * @property {string} headHash
+ * @property {string | null} readme
  */
 
 /**
